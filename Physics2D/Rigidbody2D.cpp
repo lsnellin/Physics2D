@@ -1,11 +1,17 @@
 #include "Rigidbody2D.h"
 
 using namespace Physics2D;
-using namespace sf;
+using sf::Vector2f;
 
 Rigidbody2D::Rigidbody2D() :
 position(Vector2f()), 
 rotation(0.0f)
+{
+}
+
+Rigidbody2D::Rigidbody2D(Vector2f position, float rotation) :
+	position(position),
+	rotation(rotation)
 {
 }
 

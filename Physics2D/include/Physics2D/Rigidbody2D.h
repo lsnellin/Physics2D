@@ -9,6 +9,7 @@ namespace Physics2D {
 
 	public:
 		Rigidbody2D();
+		Rigidbody2D(sf::Vector2f position, float rotation);
 		sf::Vector2f getPosition();
 		float getRotation();
 		void setPosition(sf::Vector2f);
