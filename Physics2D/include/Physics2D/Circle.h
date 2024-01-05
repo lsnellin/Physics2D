@@ -11,9 +11,10 @@ namespace Physics2D {
 
 	public:
 		Circle();
-		Circle(float radius);
+		Circle(float radius, sf::Vector2f center);
 		float getRadius();
 		sf::Vector2f getCenter();
+		void setCenter(sf::Vector2f center);
 	};
 }
 

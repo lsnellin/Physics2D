@@ -17,4 +17,3 @@ namespace Physics2D {
 		sf::Vector2f getMax();
 	};
 }
-
