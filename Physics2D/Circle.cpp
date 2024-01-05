@@ -1,18 +1,17 @@
 #include "Circle.h"
 
 using namespace Physics2D;
-using sf::Vector2f;
+using namespace sf;
 
 Circle::Circle() :
-	Circle(1.0f, sf::Vector2f(0,0))
+	Circle(1.0f)
 {
 }
 
-Circle::Circle(float radius, Vector2f center) :
+Circle::Circle(float radius) :
 	rigidbody(),
 	radius(radius)
 {
-	rigidbody.setPosition(center);
 }
 
 float Circle::getRadius() {
@@ -21,8 +20,4 @@ float Circle::getRadius() {
 
 Vector2f Circle::getCenter() {
 	return this->rigidbody.getPosition();
-}
-
-void Circle::setCenter(Vector2f center) {
-	this->rigidbody.setPosition(center);
 }

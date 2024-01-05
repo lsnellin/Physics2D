@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)include\Physics2D;C:\Cpp Libraries\SFML-2.6.1\include</AdditionalIncludeDirectories>
     </ClCompile>
@@ -162,8 +162,6 @@
     <ClCompile Include="IntersectionDetector.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="pUtil.cpp" />
-    <ClCompile Include="Ray.cpp" />
-    <ClCompile Include="RaycastResult.cpp" />
     <ClCompile Include="Rigidbody2D.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -175,8 +173,6 @@
     <ClInclude Include="include\Physics2D\framework.h" />
     <ClInclude Include="include\Physics2D\IntersectionDetector.h" />
     <ClInclude Include="include\Physics2D\Line.h" />
-    <ClInclude Include="include\Physics2D\Ray.h" />
-    <ClInclude Include="include\Physics2D\RaycastResult.h" />
     <ClInclude Include="include\Physics2D\Rigidbody2D.h" />
     <ClInclude Include="include\Physics2D\pUtil.h" />
   </ItemGroup>

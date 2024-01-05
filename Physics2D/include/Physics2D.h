@@ -8,4 +8,3 @@
 #include "Physics2D/IntersectionDetector.h"
 #include "Physics2D/pUtil.h"
 #include "Physics2D/Line.h"
-#include "Physics2D/Ray.h"
