@@ -171,8 +171,8 @@ namespace Physics2D {
 		return true;
 	}
 
-	bool raycast(AABB aabb, Ray ray, RaycastResult result) {
-		RaycastResult::reset(&result);
+	bool raycast(AABB aabb, Ray ray, RaycastResult *result) {
+		RaycastResult::reset(result);
 		//Set up unit vector and get the inverse of the dimensions
 		Vector2f lineUnitVector = ray.getDirection();
 
@@ -200,8 +200,30 @@ namespace Physics2D {
 		Vector2f point = ray.getOrigin() + ray.getDirection() * t;
 		Vector2f normal = ray.getDirection() * -1.f;
 
-		result.init(point, normal, t, hit);
+		result->init(point, normal, t, hit);
 
+		return true;
+	}
+
+	bool raycast(Box box, Ray ray, RaycastResult* result) {
+		//Reset result:
+		RaycastResult::reset(result);
+
+		//Transform ray into box's local space
+		float angle = box.getRigidbody().getRotation();
+		Vector2f center = box.getRigidbody().getPosition();
+		ray.rotate(angle, center);
+
+		//Perform raycast using local ray
+		AABB aabb = AABB(box.getMin(), box.getMax());
+		if (!raycast(aabb, ray, result)) return false;
+
+		//If raycast hit, unrotate the result and return true:
+		Vector2f point = result->getPoint();
+		Vector2f normal = result->getNormal();
+		rotateVector2f(&point, angle * -1.f, center);
+		rotateVector2f(&normal, angle * -1.f, center);
+		result->init(point, normal, result->getT(), true);
 		return true;
 	}
 };

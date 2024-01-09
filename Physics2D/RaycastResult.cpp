@@ -33,3 +33,7 @@ Vector2f RaycastResult::getNormal() {
 Vector2f RaycastResult::getPoint() {
 	return this->point;
 }
+
+float RaycastResult::getT() {
+	return this->t;
+}

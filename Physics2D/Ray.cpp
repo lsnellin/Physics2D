@@ -16,3 +16,14 @@ Vector2f Ray::getOrigin() {
 Vector2f Ray::getDirection() {
 	return this->direction;
 }
+
+void Ray::rotate(float angle, Vector2f center) {
+	Vector2f origin = this->origin;
+	Vector2f direction = this->direction;
+
+	rotateVector2f(&origin, angle, center);
+	rotateVector2f(&direction, angle, center);
+
+	this->origin = origin;
+	this->direction = direction;
+}

@@ -20,5 +20,6 @@ namespace Physics2D {
 	bool lineVSBox(Physics2D::Line line, Physics2D::Box box);
 	bool raycast(Physics2D::Circle circle, Physics2D::Ray ray, Physics2D::RaycastResult* result);
 	bool raycast(Physics2D::AABB aabb, Physics2D::Ray ray, Physics2D::RaycastResult* result);
+	bool raycast(Physics2D::Box box, Physics2D::Ray ray, Physics2D::RaycastResult* result);
 }
 

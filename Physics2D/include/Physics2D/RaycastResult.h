@@ -15,5 +15,6 @@ namespace Physics2D {
 		static void reset(Physics2D::RaycastResult* result);
 		sf::Vector2f getPoint();
 		sf::Vector2f getNormal();
+		float getT();
 	};
 }
