@@ -40,9 +40,6 @@ int main() {
 	startText.setOrigin(localBounds);
 	startText.setPosition(Vector2f(window.getSize() / 2u));
 
-	AABB temp = AABB(Vector2f(1,1), Vector2f(3,3));
-	cout << temp.getCenter().x << "," << temp.getCenter().y << " " << temp.getSize().x << "," << temp.getSize().y << endl;
-
 	//Main Game Loop:
 	while (window.isOpen()) {
 		while (window.pollEvent(event)) {

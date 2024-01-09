@@ -9,3 +9,4 @@
 #include "Physics2D/pUtil.h"
 #include "Physics2D/Line.h"
 #include "Physics2D/Ray.h"
+#include "Physics2D/RaycastResult.h"

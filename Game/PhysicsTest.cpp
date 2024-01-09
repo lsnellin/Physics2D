@@ -7,36 +7,138 @@ using sf::Vector2f;
 using namespace Physics2D;
 
 int main() {
+	runBackgroundTests();
+
+	visualizeAABB();
+	
+	return 0;
+}
+
+void visualizeAABB() {
+	Vector2f windowSize = Vector2f(1920, 1080);
+	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
+	window.setFramerateLimit(60);
+	Event event;
+
+	//Define background:
+	sf::RectangleShape background(windowSize);
+	background.setFillColor(Color(0, 0, 0));
+
+	//Define AABB (SFML)
+	Vector2f rectSize(360.f, 688.f);
+	Vector2f rectOrigin(windowSize.x / 2 - rectSize.x / 2, windowSize.y / 2 - rectSize.y / 2);
+	sf::RectangleShape rect(rectSize);
+	rect.setOutlineColor(Color(175, 0, 175));
+	rect.setOutlineThickness(2.f);
+	rect.setFillColor(Color(50, 50, 50));
+	rect.setPosition(rectOrigin);
+
+	AABB aabb = AABB(rectOrigin, rectOrigin + rectSize);
+
+	//Define Ray:
+	float maxDist = 100.f;
+	float minDist = 50.f;
+	float dist1 = 0.f; //Differential for point 1
+	float dist2 = 0.f; //Differential for point 2
+	float d1 = 2;
+	float d2 = 4;
+	Vector2f sizeMax(maxDist * 2 + rectSize.x, maxDist * 2 + rectSize.y); //point 1 bounding box
+	Vector2f sizeMin(minDist * 2 + rectSize.x, minDist * 2 + rectSize.y); //point 2 bounding box
+	Vector2f point1(rectOrigin.x - maxDist, rectOrigin.y - maxDist);
+	Vector2f point2(rectOrigin.x - minDist, rectOrigin.y - minDist);
+	Vector2f direction(point2 - point1);
+	vNormalize(&direction);
+	sf::Vertex rayLine[] = { Vertex(point1), Vertex(point2) };
+	Ray ray = Ray(point1, direction);
+	RaycastResult result;
+
+	//Define intersection:
+	sf::CircleShape intersectPoint;
+	float radius = 4.f;
+	intersectPoint.setRadius(radius);
+	intersectPoint.setFillColor(Color(255, 255, 0));
+	intersectPoint.setPosition(5, 5);
+	bool isIntersect = false;
+
+	//Main Game Loop:
+	while (window.isOpen()) {
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+		}
+
+		//Update rays:
+		//Increase differentials:
+		dist1 += d1;
+		dist2 += d2;
+		//Update point 1:
+		if (dist1 <= sizeMax.x) point1.x += d1;
+		else if (dist1 <= sizeMax.x + sizeMax.y) point1.y += d1;
+		else if (dist1 <= sizeMax.x * 2 + sizeMax.y) point1.x -= d1;
+		else if (dist1 <= sizeMax.x * 2 + sizeMax.y * 2) point1.y -= d1;
+		else dist1 = 0;
+		//Update point 2:
+		if (dist2 <= sizeMin.x) point2.x += d2;
+		else if (dist2 <= sizeMin.x + sizeMin.y) point2.y += d2;
+		else if (dist2 <= sizeMin.x * 2 + sizeMin.y) point2.x -= d2;
+		else if (dist2 <= sizeMin.x * 2 + sizeMin.y * 2) point2.y -= d2;
+		else dist2 = 0;
+
+		//Update raycast:
+		direction = point2 - point1;
+		vNormalize(&direction);
+		ray = Ray(point1, direction);
+		raycast(aabb, ray, &result);
+
+		rayLine[0] = Vertex(point1);
+		float t = result.getT();
+		if (!floatLT(t, 0.f)) {
+			isIntersect = true;
+			intersectPoint.setPosition(result.getPoint().x - radius, result.getPoint().y - radius);
+			rayLine[1] = Vertex(result.getPoint());
+		}
+		else {
+			isIntersect = false;
+			rayLine[1] = Vertex(point2);
+		}
+
+
+		window.draw(background);
+		window.draw(rect);
+		window.draw(rayLine, 2, sf::Lines);
+		if (isIntersect) window.draw(intersectPoint);
+		window.display();
+
+	}
+}
+
+void runBackgroundTests() {
 	const string pass = "PASS";
 	const string fail = "FAIL";
 
 	//Test pointOnLine:
 	cout << "Point on Line:         " << (testPointOnLine() ? pass : fail) << endl;
-
 	//Test pointInCircle:
 	cout << "Point in Circle:       " << (testPointInCircle() ? pass : fail) << endl;
-
 	//Test pointInAABB:
 	cout << "Point in AABB:         " << (testPointInAABB() ? pass : fail) << endl;
-
 	//Test pointInBox:
 	cout << "Point in Box:          " << (testPointInBox() ? pass : fail) << endl;
-
 	//Test rotateVector2f:
 	cout << "Rotate Vector:         " << (testRotateVector2f() ? pass : fail) << endl;
-
 	//Test lineIntersectCircle:
 	cout << "Line VS Circle:        " << (testLineVSCircle() ? pass : fail) << endl;
-
 	//Test lineVSAABB:
 	cout << "Line VS AABB:          " << (testLineVSAABB() ? pass : fail) << endl;
-
 	//Test lineVSBox:
 	cout << "Line VS Box:           " << (testLineVSBox() ? pass : fail) << endl;
-
 	//Test raycast circle:
 	cout << "Raycast Circle:        " << (testRaycastCircle() ? pass : fail) << endl;
-
+	//Test raycast AABB:
+	cout << "Raycast AABB:          " << (testRaycastAABB() ? pass : fail) << endl;
+	//Test raycast Box:
+	cout << "Raycast Box:           " << (testRaycastBox() ? pass : fail) << endl;
 }
 
 bool testPointOnLine() {
@@ -264,6 +366,48 @@ bool testRaycastCircle() {
 
 	if (raycast(circle, ray, &result)) return false; //Ensure ray doesn't hit:
 
+	//Test passed
+	return true;
+}
+
+bool testRaycastAABB() {
+	//Test case 1: Box from (0,0) (2,2) and Ray (-1,0) direction (1,0)
+	RaycastResult result = RaycastResult();
+	Vector2f origin(-1.f, 1.f);
+	Vector2f dir(1.f, 0.f);
+	Vector2f expectedPoint(0.f,1.f);
+	Vector2f expectedNormal = dir * -1.f;
+	Ray ray = Ray(origin, dir);
+	AABB aabb = AABB(Vector2f(0.f, 0.f), Vector2f(2.f, 2.f));
+	if (!raycast(aabb, ray, &result)) return false;
+	//Ensure properties are as expected:
+	if (!compareVector2f(result.getPoint(), expectedPoint, 0.0001f)) {
+		return false;
+	}
+	if (!compareVector2f(result.getNormal(), expectedNormal, 0.0001f)) {
+		return false;
+	}
+
+	//Test case 2: Box from (0,0) (2,2) and Ray (1,1) direction (1,0)
+	origin = Vector2f(1.f, 1.f);
+	dir = Vector2f(1.f, 0.f);
+	expectedPoint = Vector2f(2.f, 1.f);
+	expectedNormal = dir * -1.f;
+	ray = Ray(origin, dir);
+	if (!raycast(aabb, ray, &result)) return false;
+	//Ensure properties are as expected:
+	if (!compareVector2f(result.getPoint(), expectedPoint, 0.0001f)) {
+		return false;
+	}
+	if (!compareVector2f(result.getNormal(), expectedNormal, 0.0001f)) {
+		return false;
+	}
+
+	//Test passed
+	return true;
+}
+
+bool testRaycastBox() {
 	//Test passed
 	return true;
 }

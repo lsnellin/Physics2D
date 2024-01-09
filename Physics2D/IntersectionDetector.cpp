@@ -182,13 +182,13 @@ namespace Physics2D {
 		Vector2f min = aabb.getMin() - ray.getOrigin();
 		Vector2f max = aabb.getMax() - ray.getOrigin();
 
-		min.x *= lineUnitVector.x;
-		min.y *= lineUnitVector.y;
-		max.x *= lineUnitVector.x;
-		max.y *= lineUnitVector.y;
+		float nearX = min.x * lineUnitVector.x;
+		float nearY = min.y * lineUnitVector.y;
+		float farX = max.x * lineUnitVector.x;
+		float farY = max.y * lineUnitVector.y;
 
-		float tmin = fmaxf(fminf(min.x, max.x), fminf(min.y, max.y));
-		float tmax = fminf(fmaxf(min.x, max.x), fmaxf(min.y, max.y));
+		float tmin = fmaxf(fminf(nearX, farX), fminf(nearY, farY));
+		float tmax = fminf(fmaxf(nearX, farX), fmaxf(nearY, farY));
 
 		if (floatLT(tmax, 0.f) || floatGT(tmin, tmax)) return false;
 		float t = floatLT(tmin, 0.f) ? tmax : tmin;
