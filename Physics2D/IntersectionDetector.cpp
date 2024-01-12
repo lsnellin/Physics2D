@@ -133,6 +133,7 @@ namespace Physics2D {
 		return lineVSAABB(localLine, aabb);
 	}
 
+	//Raycasts a ray against a circle and stores the result in the given location
 	bool raycast(Circle circle, Ray ray, RaycastResult* result) {
 		RaycastResult::reset(result);
 		Vector2f originToCircle = circle.getCenter() - ray.getOrigin();
@@ -171,13 +172,16 @@ namespace Physics2D {
 		return true;
 	}
 
+	//Raycasts a ray against an AABB and stores the result in the given location
 	bool raycast(AABB aabb, Ray ray, RaycastResult *result) {
 		RaycastResult::reset(result);
 		//Set up unit vector and get the inverse of the dimensions
 		Vector2f lineUnitVector = ray.getDirection();
 
-		lineUnitVector.x = floatCompare(lineUnitVector.x, 0.f) ? 0.f : 1.f / lineUnitVector.x; //Invert x w/o dividing by 0
-		lineUnitVector.y = floatCompare(lineUnitVector.y, 0.f) ? 0.f : 1.f / lineUnitVector.y; //Invert y w/o dividing by 0
+		lineUnitVector.x = floatCompare(lineUnitVector.x, 0.f) ? 
+			std::numeric_limits<float>::infinity() : 1.f / lineUnitVector.x; //Invert x w/o dividing by 0
+		lineUnitVector.y = floatCompare(lineUnitVector.y, 0.f) ? 
+			std::numeric_limits<float>::infinity() : 1.f / lineUnitVector.y; //Invert y w/o dividing by 0
 
 		Vector2f min = aabb.getMin() - ray.getOrigin();
 		Vector2f max = aabb.getMax() - ray.getOrigin();
@@ -205,6 +209,7 @@ namespace Physics2D {
 		return true;
 	}
 
+	//Raycasts a ray against a Box with rotation and stores the result in the given location
 	bool raycast(Box box, Ray ray, RaycastResult* result) {
 		//Reset result:
 		RaycastResult::reset(result);
@@ -221,9 +226,221 @@ namespace Physics2D {
 		//If raycast hit, unrotate the result and return true:
 		Vector2f point = result->getPoint();
 		Vector2f normal = result->getNormal();
-		rotateVector2f(&point, angle * -1.f, center);
-		rotateVector2f(&normal, angle * -1.f, center);
+		rotateVector2f(&point, -angle, center);
+		rotateVector2f(&normal, -angle, center);
 		result->init(point, normal, result->getT(), true);
 		return true;
+	}
+
+	// ==========================
+	// Circle Vs. Primitive Tests
+	// ==========================
+
+	//Checks if a circle and a line are intersecting
+	bool circleVSLine(Circle circle, Line line) {
+		return lineVSCircle(line, circle);
+	}
+
+	//Checks if two circles are intersecting
+	bool circleVSCircle(Circle circle1, Circle circle2) {
+		Vector2f centerDistance = circle2.getCenter() - circle1.getCenter();
+		float combinedRadius = circle1.getRadius() + circle2.getRadius();
+
+		return !floatGT(vLengthSquared(centerDistance), powf(combinedRadius, 2.f));
+	}
+
+	//Checks if a circle and an aabb are intersecting
+	bool circleVSAABB(Circle circle, AABB aabb) {
+		Vector2f min = aabb.getMin();
+		Vector2f max = aabb.getMax();
+		Vector2f closestPoint(circle.getCenter());
+
+		if (floatLT(closestPoint.x, min.x)) {
+			closestPoint.x = min.x;
+		}
+		else if (floatGT(closestPoint.x, max.x)) {
+			closestPoint.x = max.x;
+		}
+
+		if (floatLT(closestPoint.y, min.y)) {
+			closestPoint.y = min.y;
+		}
+		else if (floatGT(closestPoint.y, max.y)) {
+			closestPoint.y = max.y;
+		}
+
+		Vector2f centerToPoint(closestPoint - circle.getCenter());
+
+		return (!floatGT(vLengthSquared(centerToPoint), powf(circle.getRadius(), 2)));
+	}
+
+	//Checks if a circle and a box with rotation are intersecting
+	bool circleVSBox(Circle circle, Box box) {
+		//Treat box as if it weren't rotated:
+		Vector2f min(0.f, 0.f);
+		Vector2f max(box.getHalfsize() * 2.f);
+
+		//Create circle in box local space:
+		Vector2f r = circle.getCenter() - box.getRigidbody().getPosition();
+		rotateVector2f(&r, -box.getRigidbody().getRotation(), Vector2f(0.f,0.f));
+		r += box.getHalfsize();
+
+		Circle localCircle = Circle(circle.getRadius(), r);
+		AABB aabb = AABB(min, max);
+		return circleVSAABB(localCircle, aabb);
+	}
+
+	// ==========================
+	// AABB Vs. Primitive Tests
+	// ==========================
+
+	//Checks if an aabb and a line are intersecting
+	bool aabbVSLine(AABB aabb, Line line) {
+		return lineVSAABB(line, aabb);
+	}
+
+	//Checks if an aabb and a circle are intersecting
+	bool aabbVSCircle(AABB aabb, Circle circle) {
+		return circleVSAABB(circle, aabb);
+	}
+
+	//Checks if two AABB's are intersecting
+	bool aabbVSAABB(AABB aabb1, AABB aabb2) {
+		//AABBs have axis (1,0) and (0,1)
+		//Return true if aabb overlaps on both axis
+		return overlapOnAxis(aabb1, aabb2, Vector2f(1.f, 0.f))
+			&& overlapOnAxis(aabb1, aabb2, Vector2f(0.f, 1.f));
+	}
+
+	bool aabbVSBox(AABB aabb, Box box) {
+		std::vector<Vector2f> axes;
+
+		axes.push_back(Vector2f(1.f, 0.f)); //AABB x axis
+		axes.push_back(Vector2f(0.f, 1.f)); //AABB y axis
+		axes.push_back(Vector2f(1.f, 0.f)); //Box x axis
+		axes.push_back(Vector2f(0.f, 1.f)); //Box y axis
+
+		rotateVector2f(&axes[2], box.getRigidbody().getRotation(), box.getRigidbody().getPosition());
+		rotateVector2f(&axes[3], box.getRigidbody().getRotation(), box.getRigidbody().getPosition());
+
+		for (auto& axis : axes) {
+			if (!overlapOnAxis(aabb, box, axis)) return false;
+		}
+
+		return true;
+	}
+
+	// =======================
+	// Box Vs. Primitive Tests
+	// =======================
+
+	//Checks if a box and a line intersect
+	bool boxVSLine(Box box, Line line) {
+		return lineVSBox(line, box);
+	}
+
+	//Checks if a box and a circle intersect
+	bool boxVSCircle(Box box, Circle circle) {
+		return circleVSBox(circle, box);
+	}
+
+	//Checks if a box and an AABB intersect
+	bool boxVSAABB(Box box, AABB aabb) {
+		return aabbVSBox(aabb, box);
+	}
+
+	//Checks if two boxes intersect
+	bool boxVSBox(Box box1, Box box2) {
+		std::vector<Vector2f> axes;
+
+		axes.push_back(Vector2f(1.f, 0.f)); //Box1 x axis
+		axes.push_back(Vector2f(0.f, 1.f)); //Box1 y axis
+		axes.push_back(Vector2f(1.f, 0.f)); //Box2 x axis
+		axes.push_back(Vector2f(0.f, 1.f)); //Box2 y axis
+
+		rotateVector2f(&axes[0], box1.getRigidbody().getRotation(), box1.getRigidbody().getPosition());
+		rotateVector2f(&axes[1], box1.getRigidbody().getRotation(), box1.getRigidbody().getPosition());
+		rotateVector2f(&axes[2], box2.getRigidbody().getRotation(), box2.getRigidbody().getPosition());
+		rotateVector2f(&axes[3], box2.getRigidbody().getRotation(), box2.getRigidbody().getPosition());
+
+		for (auto& axis : axes) {
+			if (!overlapOnAxis(box1, box2, axis)) return false;
+		}
+
+		return true;
+	}
+
+
+	// ===============================
+	// Separating Axis Theorem Helpers
+	// ===============================
+
+	//Checks if two AABB's overlap on the given axis 
+	//NOTE: Axis must be normalized
+	bool overlapOnAxis(AABB aabb1, AABB aabb2, Vector2f axis) {
+		Vector2f interval1 = getInterval(aabb1, axis);
+		Vector2f interval2 = getInterval(aabb2, axis);
+
+		if (floatLT(interval1.x, interval2.y) && floatLT(interval2.x, interval1.y)) return true;
+
+		return false;
+	}
+
+	//Checks if an AABB and Box overlap on the given axis 
+	//NOTE: Axis must be normalized
+	bool overlapOnAxis(AABB aabb, Box box, Vector2f axis) {
+		Vector2f interval1 = getInterval(aabb, axis);
+		Vector2f interval2 = getInterval(box, axis);
+
+		if (floatLT(interval1.x, interval2.y) && floatLT(interval2.x, interval1.y)) return true;
+
+		return false;
+	}
+
+	//Checks if two Box's overlap on the given axis 
+	//NOTE: Axis must be normalized
+	bool overlapOnAxis(Box box1, Box box2, Vector2f axis) {
+		Vector2f interval1 = getInterval(box1, axis);
+		Vector2f interval2 = getInterval(box2, axis);
+
+		if (floatLT(interval1.x, interval2.y) && floatLT(interval2.x, interval1.y)) return true;
+
+		return false;
+	}
+
+	//Gets the minimum and maximum points of an AABB projected onto the given axis
+	//NOTE: Axis must be normalized
+	Vector2f getInterval(AABB aabb, Vector2f axis) {
+		Vector2f result; // result.x = min of interval, result.y = max of interval
+		std::vector<Vector2f> vertices = aabb.getVertices();
+
+		result.x = vDot(vertices[0], axis);
+		result.y = result.x;
+
+		for (int i = 1; i < 4; i++) {
+			float projection = vDot(vertices[i], axis);
+			if (floatLT(projection, result.x)) result.x = projection;
+			else if (floatGT(projection, result.y)) result.y = projection;
+		}
+
+		return result;
+	}
+
+	//Gets the minimum and maximum points of a Box projected onto the given axis
+	//NOTE: Axis must be normalized
+	Vector2f getInterval(Box box, Vector2f axis) {
+		Vector2f result; // result.x = min of interval, result.y = max of interval
+		std::vector<Vector2f> vertices = box.getVertices();
+
+		result.x = vDot(vertices[0], axis);
+		result.y = result.x;
+
+		for (int i = 1; i < 4; i++) {
+			float projection = vDot(vertices[i], axis);
+			if (floatLT(projection, result.x)) result.x = projection;
+			else if (floatGT(projection, result.y)) result.y = projection;
+		}
+
+		return result;
 	}
 };

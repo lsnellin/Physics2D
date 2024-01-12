@@ -18,6 +18,10 @@ Box::Box(Vector2f min, Vector2f max) :
 	rigidbody.setPosition(min + halfSize);
 }
 
+void Box::setCenter(Vector2f center) {
+	this->rigidbody.setPosition(center);
+}
+
 Vector2f Box::getMin() {
 	return this->rigidbody.getPosition() - this->halfSize;
 }
@@ -26,10 +30,14 @@ Vector2f Box::getMax() {
 	return this->rigidbody.getPosition() + this->halfSize;
 }
 
+Vector2f Box::getHalfsize() {
+	return this->halfSize;
+}
+
 void Box::rotate(float rotation) {
-	rigidbody.setRotation(
-		this->getRigidbody().getRotation() + rotation
-	);
+	float newRotation = rigidbody.getRotation() + rotation;
+	newRotation -= ((int)newRotation / 360) * 360;
+	rigidbody.setRotation(newRotation);
 }
 
 std::vector<Vector2f> Box::getVertices() {
@@ -40,10 +48,9 @@ std::vector<Vector2f> Box::getVertices() {
 	vertices.push_back(Vector2f(this->getMax().x, this->getMin().y));
 	vertices.push_back(Vector2f(this->getMax()));
 
-	//TODO: Implement rotating the vertices if the box is rotated
+	//Rotate the vertices if the box is rotated
 	for (auto& vertex : vertices) {
 		rotateVector2f(&vertex, this->getRigidbody().getRotation(), this->getRigidbody().getPosition());
-
 	}
 
 	return vertices;

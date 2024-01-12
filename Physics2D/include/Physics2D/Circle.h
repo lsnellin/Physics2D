@@ -15,6 +15,7 @@ namespace Physics2D {
 		float getRadius();
 		sf::Vector2f getCenter();
 		void setCenter(sf::Vector2f center);
+		void setRadius(float radius);
 	};
 }
 

@@ -26,3 +26,7 @@ Vector2f Circle::getCenter() {
 void Circle::setCenter(Vector2f center) {
 	this->rigidbody.setPosition(center);
 }
+
+void Circle::setRadius(float radius) {
+	this->radius = radius;
+}

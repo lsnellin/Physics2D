@@ -9,12 +9,14 @@ using namespace Physics2D;
 int main() {
 	runBackgroundTests();
 
-	visualizeAABB();
+	visualizeRaycastBox();
+	visualizeCircleVSCircle();
+	visualizeCircleVSBox();
 	
 	return 0;
 }
 
-void visualizeAABB() {
+void visualizeCircleVSBox() {
 	Vector2f windowSize = Vector2f(1920, 1080);
 	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
 	window.setFramerateLimit(60);
@@ -24,16 +26,212 @@ void visualizeAABB() {
 	sf::RectangleShape background(windowSize);
 	background.setFillColor(Color(0, 0, 0));
 
+	//Define Circle1 (SFML)
+	CircleShape circle;
+	float radius1 = 128.f;
+	float dx1 = 1.f;
+	float dr1 = 2.f;
+	circle.setRadius(radius1);
+	circle.setOrigin(radius1, radius1);
+	circle.setPosition(windowSize.x / 2, windowSize.y / 2);
+	circle.setFillColor(Color::Transparent);
+	circle.setOutlineColor(Color(175, 0, 175));
+	circle.setOutlineThickness(2.f);
+
+	//Define Box (SFML):
+	RectangleShape box;
+	float sideLength = 100.f;
+	float dx2 = 2.5f;
+	float rotationStep = 2.f;
+	Vector2f boxSize(sideLength, sideLength);
+	box.setSize(boxSize);
+	box.setOrigin(sideLength / 2, sideLength / 2);
+	box.setPosition(windowSize.x / 2, windowSize.y / 2);
+	box.setFillColor(Color::Transparent);
+	box.setOutlineColor(Color(175, 0, 175));
+	box.setOutlineThickness(2.f);
+
+	//Define circle for physics:
+	Circle pCircle = Circle(radius1, Vector2f(windowSize.x / 2, windowSize.y / 2));
+	float maxX = windowSize.x / 2 + 250;
+	float minX = windowSize.x / 2 - 250;
+	float maxR = 200.f;
+	float minR = 50.f;
+
+	//Define box for physics:
+	Box pBox = Box(Vector2f(0, 0), boxSize);
+	pBox.setCenter(windowSize / 2.f);
+
+	//Main Game Loop:
+	while (window.isOpen()) {
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+		}
+
+		//Update SFML Shapes and Physics:
+		pCircle.setCenter(pCircle.getCenter() + Vector2f(dx1, 0.f));
+		circle.setPosition(circle.getPosition() + Vector2f(dx1, 0.f));
+		if (floatGT(pCircle.getCenter().x + dx1, maxX) || floatLT(pCircle.getCenter().x + dx1, minX)) {
+			dx1 *= -1.f;
+		}
+
+		pCircle.setRadius(pCircle.getRadius() + dr1);
+		circle.setRadius(circle.getRadius() + dr1);
+		circle.setOrigin(circle.getRadius(), circle.getRadius());
+		if (floatGT(pCircle.getRadius() + dr1, maxR) || floatLT(pCircle.getRadius() + dr1, minR)) {
+			dr1 *= -1.f;
+		}
+
+		pBox.setCenter(pBox.getRigidbody().getPosition() + Vector2f(dx2, 0.f));
+		box.setPosition(box.getPosition() + Vector2f(dx2, 0.f));
+		if (floatGT(pBox.getRigidbody().getPosition().x + dx2, maxX) ||
+			floatLT(pBox.getRigidbody().getPosition().x + dx2, minX)) {
+			dx2 *= -1.f;
+		}
+
+		box.rotate(rotationStep);
+		pBox.rotate(-rotationStep);
+
+		
+
+		//Update colors for intersection detection
+		if (circleVSBox(pCircle, pBox)) {
+			circle.setOutlineColor(Color(255, 255, 0));
+			box.setOutlineColor(Color(255, 255, 0));
+		}
+		else {
+			circle.setOutlineColor(Color(175, 0, 175));
+			box.setOutlineColor(Color(175, 0, 175));
+		}
+
+		window.draw(background);
+		window.draw(box);
+		window.draw(circle);
+		window.display();
+
+	}
+
+}
+
+void visualizeCircleVSCircle() {
+	Vector2f windowSize = Vector2f(1920, 1080);
+	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
+	window.setFramerateLimit(60);
+	Event event;
+
+	//Define background:
+	sf::RectangleShape background(windowSize);
+	background.setFillColor(Color(0, 0, 0));
+
+	//Define Circle1 (SFML)
+	CircleShape circle1;
+	float radius1 = 128.f;
+	float dx1 = 1.f;
+	float dr1 = 2.f;
+	circle1.setRadius(radius1);
+	circle1.setOrigin(radius1, radius1);
+	circle1.setPosition(windowSize.x / 2, windowSize.y / 2);
+	circle1.setFillColor(Color::Transparent);
+	circle1.setOutlineColor(Color(175, 0, 175));
+	circle1.setOutlineThickness(2.f);
+
+	//Define Circle2 (SFML)
+	CircleShape circle2;
+	float radius2 = 128.f;
+	float dx2 = -1.f;
+	float dr2 = -3.f;
+	circle2.setRadius(radius2);
+	circle2.setOrigin(radius2, radius2);
+	circle2.setPosition(windowSize.x / 2, windowSize.y / 2);
+	circle2.setFillColor(Color::Transparent);
+	circle2.setOutlineColor(Color(175, 0, 175));
+	circle2.setOutlineThickness(2.f);
+
+	//Define circle for physics:
+	Circle pCircle1 = Circle(radius1, Vector2f(windowSize.x / 2, windowSize.y / 2));
+	Circle pCircle2 = Circle(radius2, Vector2f(windowSize.x / 2, windowSize.y / 2));
+	float maxX = windowSize.x / 2 + 250;
+	float minX = windowSize.x / 2 - 250;
+	float maxR = 200.f;
+	float minR = 50.f;
+
+	//Main Game Loop:
+	while (window.isOpen()) {
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+		}
+
+		//Update Circles and Physics:
+		pCircle1.setCenter(pCircle1.getCenter() + Vector2f(dx1, 0.f));
+		circle1.setPosition(circle1.getPosition() + Vector2f(dx1, 0.f));
+		if (floatGT(pCircle1.getCenter().x + dx1, maxX) || floatLT(pCircle1.getCenter().x + dx1, minX)) {
+			dx1 *= -1.f;
+		}
+
+		pCircle1.setRadius(pCircle1.getRadius() + dr1);
+		circle1.setRadius(circle1.getRadius() + dr1);
+		circle1.setOrigin(circle1.getRadius(), circle1.getRadius());
+		if (floatGT(pCircle1.getRadius() + dr1, maxR) || floatLT(pCircle1.getRadius() + dr1, minR)) {
+			dr1 *= -1.f;
+		}
+
+		pCircle2.setCenter(pCircle2.getCenter() + Vector2f(dx2, 0.f));
+		circle2.setPosition(circle2.getPosition() + Vector2f(dx2, 0.f));
+		if (floatGT(pCircle2.getCenter().x + dx2, maxX) || floatLT(pCircle2.getCenter().x + dx2, minX)) {
+			dx2 *= -1.f;
+		}
+
+		pCircle2.setRadius(pCircle2.getRadius() + dr2);
+		circle2.setRadius(circle2.getRadius() + dr2);
+		circle2.setOrigin(circle2.getRadius(), circle2.getRadius());
+		if (floatGT(pCircle2.getRadius() + dr2, maxR) || floatLT(pCircle2.getRadius() + dr2, minR)) {
+			dr2 *= -1.f;
+		}
+
+		//Update colors for intersection detection
+		if (circleVSCircle(pCircle1, pCircle2)) {
+			circle1.setOutlineColor(Color(255, 255, 0));
+			circle2.setOutlineColor(Color(255, 255, 0));
+		}
+		else {
+			circle1.setOutlineColor(Color(175, 0, 175));
+			circle2.setOutlineColor(Color(175, 0, 175));
+		}
+
+		window.draw(background);
+		window.draw(circle1);
+		window.draw(circle2);
+		window.display();
+
+	}
+
+}
+
+void visualizeRaycastBox() {
+	Vector2f windowSize = Vector2f(1920, 1080);
+	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
+	window.setFramerateLimit(144);
+	Event event;
+
+	//Define background:
+	sf::RectangleShape background(windowSize);
+	background.setFillColor(Color(0, 0, 0));
+
 	//Define AABB (SFML)
-	Vector2f rectSize(360.f, 688.f);
+	Vector2f rectSize(250.f, 320.f);
 	Vector2f rectOrigin(windowSize.x / 2 - rectSize.x / 2, windowSize.y / 2 - rectSize.y / 2);
 	sf::RectangleShape rect(rectSize);
 	rect.setOutlineColor(Color(175, 0, 175));
 	rect.setOutlineThickness(2.f);
 	rect.setFillColor(Color(50, 50, 50));
-	rect.setPosition(rectOrigin);
+	rect.setOrigin(rectSize.x / 2, rectSize.y / 2);
+	rect.setPosition(windowSize.x / 2, windowSize.y / 2);
 
-	AABB aabb = AABB(rectOrigin, rectOrigin + rectSize);
+	Box box = Box(rectOrigin, rectOrigin + rectSize);
 
 	//Define Ray:
 	float maxDist = 100.f;
@@ -68,6 +266,10 @@ void visualizeAABB() {
 			}
 		}
 
+		//Rotate Shapes:
+		rect.rotate(-.5);
+		box.rotate(.5);
+
 		//Update rays:
 		//Increase differentials:
 		dist1 += d1;
@@ -89,14 +291,19 @@ void visualizeAABB() {
 		direction = point2 - point1;
 		vNormalize(&direction);
 		ray = Ray(point1, direction);
-		raycast(aabb, ray, &result);
+		raycast(box, ray, &result);
 
 		rayLine[0] = Vertex(point1);
 		float t = result.getT();
 		if (!floatLT(t, 0.f)) {
 			isIntersect = true;
 			intersectPoint.setPosition(result.getPoint().x - radius, result.getPoint().y - radius);
-			rayLine[1] = Vertex(result.getPoint());
+			if (vLengthSquared(result.getPoint() - point1) <= vLengthSquared(point2 - point1)) {
+				rayLine[1] = Vertex(result.getPoint());
+			}
+			else {
+				rayLine[1] = Vertex(point2);
+			}
 		}
 		else {
 			isIntersect = false;
@@ -371,7 +578,7 @@ bool testRaycastCircle() {
 }
 
 bool testRaycastAABB() {
-	//Test case 1: Box from (0,0) (2,2) and Ray (-1,0) direction (1,0)
+	//Test case 1: AABB from (0,0) (2,2) and Ray (-1,0) direction (1,0)
 	RaycastResult result = RaycastResult();
 	Vector2f origin(-1.f, 1.f);
 	Vector2f dir(1.f, 0.f);
@@ -388,7 +595,7 @@ bool testRaycastAABB() {
 		return false;
 	}
 
-	//Test case 2: Box from (0,0) (2,2) and Ray (1,1) direction (1,0)
+	//Test case 2: AABB from (0,0) (2,2) and Ray (1,1) direction (1,0)
 	origin = Vector2f(1.f, 1.f);
 	dir = Vector2f(1.f, 0.f);
 	expectedPoint = Vector2f(2.f, 1.f);

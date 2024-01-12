@@ -15,5 +15,6 @@ namespace Physics2D {
 		Physics2D::Rigidbody2D getRigidbody();
 		sf::Vector2f getMin();
 		sf::Vector2f getMax();
+		std::vector<sf::Vector2f> getVertices();
 	};
 }

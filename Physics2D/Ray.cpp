@@ -22,7 +22,7 @@ void Ray::rotate(float angle, Vector2f center) {
 	Vector2f direction = this->direction;
 
 	rotateVector2f(&origin, angle, center);
-	rotateVector2f(&direction, angle, center);
+	rotateVector2f(&direction, angle, Vector2f(0.f,0.f));
 
 	this->origin = origin;
 	this->direction = direction;

@@ -2,11 +2,14 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+#include <SFML/Audio.hpp>
 #include <Physics2D.h>
 #include <cmath>
 #include <iostream>
 
-void visualizeAABB();
+void visualizeCircleVSBox();
+void visualizeCircleVSCircle();
+void visualizeRaycastBox();
 void runBackgroundTests();
 bool testPointOnLine();
 bool testPointInCircle();

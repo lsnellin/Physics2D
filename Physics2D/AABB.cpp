@@ -28,3 +28,14 @@ Vector2f AABB::getMin() {
 Vector2f AABB::getMax() {
 	return this->rigidbody.getPosition() + this->halfSize;
 }
+
+std::vector<Vector2f> AABB::getVertices() {
+	std::vector<Vector2f> vertices;
+
+	vertices.push_back(Vector2f(this->getMin()));
+	vertices.push_back(Vector2f(this->getMin().x, this->getMax().y));
+	vertices.push_back(Vector2f(this->getMax().x, this->getMin().y));
+	vertices.push_back(Vector2f(this->getMax()));
+
+	return vertices;
+}
