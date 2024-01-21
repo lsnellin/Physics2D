@@ -15,18 +15,20 @@ Box::Box(Vector2f min, Vector2f max) :
 	rigidbody(),
 	halfSize(size / 2.0f)
 {
-	rigidbody.setPosition(min + halfSize);
+	setSize(max - min);
+	setCenter(min + halfSize);
 }
 
 void Box::setCenter(Vector2f center) {
 	this->rigidbody.setPosition(center);
+	RectangleShape::setPosition(center);
 }
 
-Vector2f Box::getMin() {
+Vector2f Box::getLocalMin() {
 	return this->rigidbody.getPosition() - this->halfSize;
 }
 
-Vector2f Box::getMax() {
+Vector2f Box::getLocalMax() {
 	return this->rigidbody.getPosition() + this->halfSize;
 }
 
@@ -38,24 +40,43 @@ void Box::rotate(float rotation) {
 	float newRotation = rigidbody.getRotation() + rotation;
 	newRotation -= ((int)newRotation / 360) * 360;
 	rigidbody.setRotation(newRotation);
+	RectangleShape::rotate(rotation);
 }
 
 std::vector<Vector2f> Box::getVertices() {
 	std::vector<Vector2f> vertices;
 
-	vertices.push_back(Vector2f(this->getMin()));
-	vertices.push_back(Vector2f(this->getMin().x, this->getMax().y));
-	vertices.push_back(Vector2f(this->getMax().x, this->getMin().y));
-	vertices.push_back(Vector2f(this->getMax()));
+	vertices.push_back(Vector2f(this->getLocalMin()));
+	vertices.push_back(Vector2f(this->getLocalMin().x, this->getLocalMax().y));
+	vertices.push_back(Vector2f(this->getLocalMax().x, this->getLocalMin().y));
+	vertices.push_back(Vector2f(this->getLocalMax()));
 
 	//Rotate the vertices if the box is rotated
 	for (auto& vertex : vertices) {
-		rotateVector2f(&vertex, this->getRigidbody().getRotation(), this->getRigidbody().getPosition());
+		rotateVector2f(&vertex, this->getRigidbody()->getRotation(), this->getRigidbody()->getPosition());
 	}
 
 	return vertices;
 }
 
-Rigidbody2D Box::getRigidbody() {
-	return this->rigidbody;
+Rigidbody2D* Box::getRigidbody() {
+	return &rigidbody;
+}
+
+void Box::setRigidbody(Rigidbody2D rigidbody) {
+	this->rigidbody = rigidbody;
+}
+
+void Box::setSize(Vector2f size) {
+	this->size = size;
+	this->halfSize = size / 2.f;
+	RectangleShape::setOrigin(halfSize);
+	RectangleShape::setSize(size);
+}
+
+//Updates the properties of this class from the rigidbody
+void Box::updateFromRigidbody() {
+	//Update RectangleShape
+	RectangleShape::setRotation(rigidbody.getRotation());
+	RectangleShape::setPosition(rigidbody.getPosition());
 }

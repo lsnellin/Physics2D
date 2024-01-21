@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Rigidbody2D.h"
+#include "PhysicsObject.h"
 
 namespace Physics2D {
 	class AABB
@@ -16,5 +17,7 @@ namespace Physics2D {
 		sf::Vector2f getMin();
 		sf::Vector2f getMax();
 		std::vector<sf::Vector2f> getVertices();
+		void setRigidbody(Physics2D::Rigidbody2D);
+		void setSize(sf::Vector2f size);
 	};
 }

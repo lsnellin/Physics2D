@@ -29,11 +29,11 @@ namespace Physics2D {
 	bool pointInBox(Vector2f point, Box box) {
 		//Copy point and rotate to box's local space:
 		Vector2f localPoint = Vector2f(point);
-		rotateVector2f(&localPoint, box.getRigidbody().getRotation(), box.getRigidbody().getPosition());
+		rotateVector2f(&localPoint, box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
 
 		//Check if point lies within the bounds of aabb
-		sf::Vector2f max = box.getMax();
-		sf::Vector2f min = box.getMin();
+		sf::Vector2f max = box.getLocalMax();
+		sf::Vector2f min = box.getLocalMin();
 
 		return !floatLT(localPoint.x, min.x)
 			&& !floatGT(localPoint.x, max.x)
@@ -118,8 +118,8 @@ namespace Physics2D {
 
 	//Tests if a line intersects a rotated box
 	bool lineVSBox(Line line, Box box) {
-		float angle = box.getRigidbody().getRotation();
-		Vector2f center = box.getRigidbody().getPosition();
+		float angle = box.getRigidbody()->getRotation();
+		Vector2f center = box.getRigidbody()->getPosition();
 		Vector2f localStart(line.getStart());
 		Vector2f localEnd(line.getEnd());
 
@@ -128,7 +128,7 @@ namespace Physics2D {
 		rotateVector2f(&localEnd, angle, center);
 
 		Line localLine = Line(localStart, localEnd);
-		AABB aabb = AABB(box.getMin(), box.getMax());
+		AABB aabb = AABB(box.getLocalMin(), box.getLocalMax());
 
 		return lineVSAABB(localLine, aabb);
 	}
@@ -215,12 +215,12 @@ namespace Physics2D {
 		RaycastResult::reset(result);
 
 		//Transform ray into box's local space
-		float angle = box.getRigidbody().getRotation();
-		Vector2f center = box.getRigidbody().getPosition();
+		float angle = box.getRigidbody()->getRotation();
+		Vector2f center = box.getRigidbody()->getPosition();
 		ray.rotate(angle, center);
 
 		//Perform raycast using local ray
-		AABB aabb = AABB(box.getMin(), box.getMax());
+		AABB aabb = AABB(box.getLocalMin(), box.getLocalMax());
 		if (!raycast(aabb, ray, result)) return false;
 
 		//If raycast hit, unrotate the result and return true:
@@ -281,8 +281,8 @@ namespace Physics2D {
 		Vector2f max(box.getHalfsize() * 2.f);
 
 		//Create circle in box local space:
-		Vector2f r = circle.getCenter() - box.getRigidbody().getPosition();
-		rotateVector2f(&r, -box.getRigidbody().getRotation(), Vector2f(0.f,0.f));
+		Vector2f r = circle.getCenter() - box.getRigidbody()->getPosition();
+		rotateVector2f(&r, -box.getRigidbody()->getRotation(), Vector2f(0.f,0.f));
 		r += box.getHalfsize();
 
 		Circle localCircle = Circle(circle.getRadius(), r);
@@ -320,8 +320,8 @@ namespace Physics2D {
 		axes.push_back(Vector2f(1.f, 0.f)); //Box x axis
 		axes.push_back(Vector2f(0.f, 1.f)); //Box y axis
 
-		rotateVector2f(&axes[2], box.getRigidbody().getRotation(), box.getRigidbody().getPosition());
-		rotateVector2f(&axes[3], box.getRigidbody().getRotation(), box.getRigidbody().getPosition());
+		rotateVector2f(&axes[2], box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
+		rotateVector2f(&axes[3], box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
 
 		for (auto& axis : axes) {
 			if (!overlapOnAxis(aabb, box, axis)) return false;
@@ -358,10 +358,10 @@ namespace Physics2D {
 		axes.push_back(Vector2f(1.f, 0.f)); //Box2 x axis
 		axes.push_back(Vector2f(0.f, 1.f)); //Box2 y axis
 
-		rotateVector2f(&axes[0], box1.getRigidbody().getRotation(), box1.getRigidbody().getPosition());
-		rotateVector2f(&axes[1], box1.getRigidbody().getRotation(), box1.getRigidbody().getPosition());
-		rotateVector2f(&axes[2], box2.getRigidbody().getRotation(), box2.getRigidbody().getPosition());
-		rotateVector2f(&axes[3], box2.getRigidbody().getRotation(), box2.getRigidbody().getPosition());
+		rotateVector2f(&axes[0], box1.getRigidbody()->getRotation(), box1.getRigidbody()->getPosition());
+		rotateVector2f(&axes[1], box1.getRigidbody()->getRotation(), box1.getRigidbody()->getPosition());
+		rotateVector2f(&axes[2], box2.getRigidbody()->getRotation(), box2.getRigidbody()->getPosition());
+		rotateVector2f(&axes[3], box2.getRigidbody()->getRotation(), box2.getRigidbody()->getPosition());
 
 		for (auto& axis : axes) {
 			if (!overlapOnAxis(box1, box2, axis)) return false;

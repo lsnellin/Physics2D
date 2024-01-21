@@ -9,11 +9,70 @@ using namespace Physics2D;
 int main() {
 	runBackgroundTests();
 
-	visualizeRaycastBox();
-	visualizeCircleVSCircle();
-	visualizeCircleVSBox();
+	testPhysicsWorld();
+	//visualizeRaycastBox();
+	//visualizeCircleVSCircle();
+	//visualizeCircleVSBox();
 	
 	return 0;
+}
+
+void testPhysicsWorld() {
+
+	Vector2f windowSize = Vector2f(1920, 1080);
+	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
+	window.setFramerateLimit(60);
+	Event event;
+
+	//Define background:
+	sf::RectangleShape background(windowSize);
+	background.setFillColor(Color(0, 0, 0));
+
+	//Define Physics:
+	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
+	//PhysicsObjectList objectList = PhysicsObjectList();
+
+	Circle circle = Circle(100.f, windowSize / 2.f);
+	circle.setFillColor(Color(155, 155, 0));
+
+	world.addRigidbody(circle.getRigidbody());
+	//objectList.add(circle);
+
+	//Main Game Loop:
+	while (window.isOpen()) {
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+
+			if (event.type == Event::KeyPressed) {
+				if (event.key.scancode == Keyboard::Scan::Up) {
+					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::Right) {
+					circle.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::Down) {
+					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::Left) {
+					circle.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::Space) {
+					circle.setCenter(windowSize / 2.f);
+					circle.getRigidbody()->addLinearVelocity(-1.f * circle.getRigidbody()->getLinearVelocity());
+				}
+			}
+		}
+		//Update Physics
+		world.fixedUpdate();
+		circle.updateFromRigidbody();
+		//objectList.updateObjectList();
+		window.draw(background);
+		window.draw(circle);
+		window.display();	
+
+	}
 }
 
 void visualizeCircleVSBox() {
@@ -84,10 +143,10 @@ void visualizeCircleVSBox() {
 			dr1 *= -1.f;
 		}
 
-		pBox.setCenter(pBox.getRigidbody().getPosition() + Vector2f(dx2, 0.f));
+		pBox.setCenter(pBox.getRigidbody()->getPosition() + Vector2f(dx2, 0.f));
 		box.setPosition(box.getPosition() + Vector2f(dx2, 0.f));
-		if (floatGT(pBox.getRigidbody().getPosition().x + dx2, maxX) ||
-			floatLT(pBox.getRigidbody().getPosition().x + dx2, minX)) {
+		if (floatGT(pBox.getRigidbody()->getPosition().x + dx2, maxX) ||
+			floatLT(pBox.getRigidbody()->getPosition().x + dx2, minX)) {
 			dx2 *= -1.f;
 		}
 

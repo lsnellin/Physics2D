@@ -39,3 +39,12 @@ std::vector<Vector2f> AABB::getVertices() {
 
 	return vertices;
 }
+
+void AABB::setRigidbody(Rigidbody2D rigidbody) {
+	this->rigidbody = rigidbody;
+}
+
+void AABB::setSize(Vector2f size) {
+	this->size = size;
+	this->halfSize = size / 2.f;
+}

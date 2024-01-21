@@ -7,6 +7,7 @@
 #include <cmath>
 #include <iostream>
 
+void testPhysicsWorld();
 void visualizeCircleVSBox();
 void visualizeCircleVSCircle();
 void visualizeRaycastBox();

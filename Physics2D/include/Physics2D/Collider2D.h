@@ -5,8 +5,10 @@
 using namespace std;
 using namespace sf;
 
-class Collider2D {
-protected:
-	Vector2f offset;
-};
+namespace Physics2D {
+	class Collider2D {
+	protected:
+		Vector2f offset;
+	};
+}
 

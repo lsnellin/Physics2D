@@ -45,7 +45,6 @@ namespace Physics2D {
 		float radians = angleDegrees * PI / 180.f;
 		//Move vector to origin:
 		*vec -= origin;
-
 		//Rotate moved vector:
 		float newX = vec->x * std::cos(radians) - vec->y * std::sin(radians);
 		float newY = vec->x * std::sin(radians) + vec->y * std::cos(radians);
