@@ -2,13 +2,17 @@
 #include "Collider2D.h"
 #include <SFML/Graphics.hpp>
 
-using namespace std;
-using namespace sf;
 
 namespace Physics2D {
+	enum class Type {Collider2D, Circle, AABB, Box};
+
 	class Collider2D {
 	protected:
-		Vector2f offset;
+		sf::Vector2f offset;
+
+	public:
+		virtual Type getType() = 0;
 	};
+
 }
 

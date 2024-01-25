@@ -34,6 +34,6 @@ vector<Vector2f> CollisionManifold::getContactPoints() {
 	return this->contactPoints;
 }
 
-bool CollisionManifold::getIsColliding() {
+bool CollisionManifold::getColliding() {
 	return this->isColliding;
 }

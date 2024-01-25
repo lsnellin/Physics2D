@@ -3,7 +3,7 @@
 using namespace Physics2D;
 using sf::Vector2f;
 
-Rigidbody2D::Rigidbody2D() :
+Rigidbody2D::Rigidbody2D(Collider2D* collider) :
 	position(Vector2f()),
 	rotation(0.0f),
 	mass(1.f),
@@ -11,24 +11,30 @@ Rigidbody2D::Rigidbody2D() :
 
 	forceAccumulator(Vector2f()),
 	linearVelocity(Vector2f()),
-	collider(),
+	collider(collider),
+
 	angularVelocity(0.f),
 	linearDamping(0.f),
 	angularDamping(0.f),
+	cor(1.f),
 	fixedRotation(false)
 {
 }
 
-Rigidbody2D::Rigidbody2D(Vector2f position, float rotation) :
+Rigidbody2D::Rigidbody2D(Vector2f position, float rotation, Collider2D* collider) :
 	position(position),
 	rotation(rotation),
 	mass(1.f),
 	inverseMass(1.f),
 
+	forceAccumulator(Vector2f()),
 	linearVelocity(Vector2f()),
+	collider(collider),
+
 	angularVelocity(0.f),
 	linearDamping(0.f),
 	angularDamping(0.f),
+	cor(1.f),
 	fixedRotation(false)
 {
 }
@@ -53,8 +59,16 @@ float Rigidbody2D::getMass() {
 	return this->mass;
 }
 
-Collider2D Rigidbody2D::getCollider() {
+float Rigidbody2D::getInverseMass() {
+	return this->inverseMass;
+}
+
+Collider2D* Rigidbody2D::getCollider() {
 	return this->collider;
+}
+
+float Rigidbody2D::getCor() {
+	return this->cor;
 }
 
 void Rigidbody2D::setMass(float mass) {
@@ -79,6 +93,14 @@ void Rigidbody2D::setTransform(Vector2f position, float rotation) {
 
 void Rigidbody2D::setTransform(Vector2f position) {
 	this->position = position;
+}
+
+void Rigidbody2D::setCor(float cor) {
+	this->cor = cor;
+}
+
+void Rigidbody2D::setLinearVelocity(Vector2f velocity) {
+	this->linearVelocity = velocity;
 }
 
 bool Rigidbody2D::hasInfiniteMass() {
@@ -109,4 +131,8 @@ void Rigidbody2D::clearAccumulators() {
 
 void Rigidbody2D::addForce(Vector2f force) {
 	this->forceAccumulator += force;
+}
+
+void Rigidbody2D::setCollider(Collider2D* collider) {
+	this->collider = collider;
 }

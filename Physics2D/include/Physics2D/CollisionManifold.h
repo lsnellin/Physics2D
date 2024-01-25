@@ -17,6 +17,6 @@ namespace Physics2D {
 		sf::Vector2f getNormal();
 		std::vector<sf::Vector2f> getContactPoints();
 		float getDepth();
-		bool getIsColliding();
+		bool getColliding();
 	};
 }

@@ -9,7 +9,7 @@ Circle::Circle() :
 }
 
 Circle::Circle(float radius, Vector2f center) :
-	rigidbody(),
+	rigidbody(new Rigidbody2D(center, 0.f, this)),
 	radius(radius)
 {
 	setCenter(center);
@@ -17,8 +17,12 @@ Circle::Circle(float radius, Vector2f center) :
 	CircleShape::setOrigin(Vector2f(radius, radius));
 }
 
+Circle::~Circle() {
+	delete rigidbody;
+}
+
 Rigidbody2D* Circle::getRigidbody() {
-	return &rigidbody;
+	return rigidbody;
 }
 
 float Circle::getRadius() {
@@ -26,11 +30,15 @@ float Circle::getRadius() {
 }
 
 Vector2f Circle::getCenter() {
-	return this->rigidbody.getPosition();
+	return this->rigidbody->getPosition();
+}
+
+Type Circle::getType() {
+	return Type::Circle;
 }
 
 void Circle::setCenter(Vector2f center) {
-	this->rigidbody.setPosition(center);
+	this->rigidbody->setPosition(center);
 	CircleShape::setPosition(center);
 }
 
@@ -39,10 +47,10 @@ void Circle::setRadius(float radius) {
 	CircleShape::setRadius(radius);
 }
 
-void Circle::setRigidbody(Rigidbody2D rigidbody) {
+void Circle::setRigidbody(Rigidbody2D* rigidbody) {
 	this->rigidbody = rigidbody;
 }
 
 void Circle::updateFromRigidbody() {
-	CircleShape::setPosition(rigidbody.getPosition());
+	CircleShape::setPosition(rigidbody->getPosition());
 }

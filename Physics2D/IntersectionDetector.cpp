@@ -12,7 +12,7 @@ namespace Physics2D {
 	// =========================
 
 	//Test if a point lies on a line
-	bool pointOnLine(Vector2f point, Line line) {
+	bool pointOnLine(Vector2f point, Line& line) {
 		//Solve for equation of line:
 		Vector2f p1 = line.getStart();
 		Vector2f p2 = line.getEnd();
@@ -26,10 +26,10 @@ namespace Physics2D {
 	}
 
 	//Test if a point is within a box
-	bool pointInBox(Vector2f point, Box box) {
+	bool pointInBox(Vector2f point, Box& box) {
 		//Copy point and rotate to box's local space:
 		Vector2f localPoint = Vector2f(point);
-		rotateVector2f(&localPoint, box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
+		rotateVector2f(localPoint, box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
 
 		//Check if point lies within the bounds of aabb
 		sf::Vector2f max = box.getLocalMax();
@@ -42,7 +42,7 @@ namespace Physics2D {
 	}
 
 	//Test if a point is within an AABB
-	bool pointInAABB(Vector2f point, AABB aabb) {
+	bool pointInAABB(Vector2f point, AABB& aabb) {
 		//Check if point lies within the bounds of aabb
 		Vector2f min = aabb.getMin();
 		Vector2f max = aabb.getMax();
@@ -54,7 +54,7 @@ namespace Physics2D {
 	}
 
 	//Tests if a point is within a circle
-	bool pointInCircle(Vector2f point, Circle circle) {
+	bool pointInCircle(Vector2f point, Circle& circle) {
 		//Check if point lies within the circle
 		sf::Vector2f dif = circle.getCenter() - point;
 		float dist = pow(dif.x, 2) + pow(dif.y, 2);
@@ -67,7 +67,7 @@ namespace Physics2D {
 	// ========================
 
 	//Tests if a line intersects a circle
-	bool lineVSCircle(Line line, Circle circle) {
+	bool lineVSCircle(Line& line, Circle& circle) {
 		if (pointInCircle(line.getStart(), circle) || pointInCircle(line.getEnd(), circle)) {
 			return true;
 		}
@@ -89,13 +89,13 @@ namespace Physics2D {
 	}
 
 	//Tests if a line intersects an AABB
-	bool lineVSAABB(Line line, AABB aabb) {
+	bool lineVSAABB(Line& line, AABB& aabb) {
 		//If either end point is in the box, return true immediately:
 		if (pointInAABB(line.getStart(), aabb) || pointInAABB(line.getEnd(), aabb)) return true;
 
 		//Set up unit vector and get the inverse of the dimensions
 		Vector2f lineUnitVector = line.getVector();
-		vNormalize(&lineUnitVector);
+		vNormalize(lineUnitVector);
 		lineUnitVector.x = floatCompare(lineUnitVector.x, 0.f) ? 0.f : 1.f / lineUnitVector.x; //Invert x w/o dividing by 0
 		lineUnitVector.y = floatCompare(lineUnitVector.y, 0.f) ? 0.f : 1.f / lineUnitVector.y; //Invert y w/o dividing by 0
 
@@ -117,15 +117,15 @@ namespace Physics2D {
 	}
 
 	//Tests if a line intersects a rotated box
-	bool lineVSBox(Line line, Box box) {
+	bool lineVSBox(Line& line, Box& box) {
 		float angle = box.getRigidbody()->getRotation();
 		Vector2f center = box.getRigidbody()->getPosition();
 		Vector2f localStart(line.getStart());
 		Vector2f localEnd(line.getEnd());
 
 		//Rotate starting and ending points
-		rotateVector2f(&localStart, angle, center);
-		rotateVector2f(&localEnd, angle, center);
+		rotateVector2f(localStart, angle, center);
+		rotateVector2f(localEnd, angle, center);
 
 		Line localLine = Line(localStart, localEnd);
 		AABB aabb = AABB(box.getLocalMin(), box.getLocalMax());
@@ -134,7 +134,7 @@ namespace Physics2D {
 	}
 
 	//Raycasts a ray against a circle and stores the result in the given location
-	bool raycast(Circle circle, Ray ray, RaycastResult* result) {
+	bool raycast(Circle& circle, Ray ray, RaycastResult& result) {
 		RaycastResult::reset(result);
 		Vector2f originToCircle = circle.getCenter() - ray.getOrigin();
 		float originToCircleSquared = vLengthSquared(originToCircle);
@@ -168,12 +168,12 @@ namespace Physics2D {
 		//vNormalize(&normal); //Normalize
 
 		//Set the raycast result and return true
-		result->init(point, normal, t, true);
+		result.init(point, normal, t, true);
 		return true;
 	}
 
 	//Raycasts a ray against an AABB and stores the result in the given location
-	bool raycast(AABB aabb, Ray ray, RaycastResult *result) {
+	bool raycast(AABB& aabb, Ray ray, RaycastResult& result) {
 		RaycastResult::reset(result);
 		//Set up unit vector and get the inverse of the dimensions
 		Vector2f lineUnitVector = ray.getDirection();
@@ -204,13 +204,13 @@ namespace Physics2D {
 		Vector2f point = ray.getOrigin() + ray.getDirection() * t;
 		Vector2f normal = ray.getDirection() * -1.f;
 
-		result->init(point, normal, t, hit);
+		result.init(point, normal, t, hit);
 
 		return true;
 	}
 
 	//Raycasts a ray against a Box with rotation and stores the result in the given location
-	bool raycast(Box box, Ray ray, RaycastResult* result) {
+	bool raycast(Box& box, Ray ray, RaycastResult& result) {
 		//Reset result:
 		RaycastResult::reset(result);
 
@@ -224,11 +224,11 @@ namespace Physics2D {
 		if (!raycast(aabb, ray, result)) return false;
 
 		//If raycast hit, unrotate the result and return true:
-		Vector2f point = result->getPoint();
-		Vector2f normal = result->getNormal();
-		rotateVector2f(&point, -angle, center);
-		rotateVector2f(&normal, -angle, center);
-		result->init(point, normal, result->getT(), true);
+		Vector2f point = result.getPoint();
+		Vector2f normal = result.getNormal();
+		rotateVector2f(point, -angle, center);
+		rotateVector2f(normal, -angle, center);
+		result.init(point, normal, result.getT(), true);
 		return true;
 	}
 
@@ -237,12 +237,12 @@ namespace Physics2D {
 	// ==========================
 
 	//Checks if a circle and a line are intersecting
-	bool circleVSLine(Circle circle, Line line) {
+	bool circleVSLine(Circle& circle, Line& line) {
 		return lineVSCircle(line, circle);
 	}
 
 	//Checks if two circles are intersecting
-	bool circleVSCircle(Circle circle1, Circle circle2) {
+	bool circleVSCircle(Circle& circle1, Circle& circle2) {
 		Vector2f centerDistance = circle2.getCenter() - circle1.getCenter();
 		float combinedRadius = circle1.getRadius() + circle2.getRadius();
 
@@ -250,7 +250,7 @@ namespace Physics2D {
 	}
 
 	//Checks if a circle and an aabb are intersecting
-	bool circleVSAABB(Circle circle, AABB aabb) {
+	bool circleVSAABB(Circle& circle, AABB& aabb) {
 		Vector2f min = aabb.getMin();
 		Vector2f max = aabb.getMax();
 		Vector2f closestPoint(circle.getCenter());
@@ -275,14 +275,14 @@ namespace Physics2D {
 	}
 
 	//Checks if a circle and a box with rotation are intersecting
-	bool circleVSBox(Circle circle, Box box) {
+	bool circleVSBox(Circle& circle, Box& box) {
 		//Treat box as if it weren't rotated:
 		Vector2f min(0.f, 0.f);
 		Vector2f max(box.getHalfsize() * 2.f);
 
 		//Create circle in box local space:
 		Vector2f r = circle.getCenter() - box.getRigidbody()->getPosition();
-		rotateVector2f(&r, -box.getRigidbody()->getRotation(), Vector2f(0.f,0.f));
+		rotateVector2f(r, -box.getRigidbody()->getRotation(), Vector2f(0.f,0.f));
 		r += box.getHalfsize();
 
 		Circle localCircle = Circle(circle.getRadius(), r);
@@ -295,24 +295,24 @@ namespace Physics2D {
 	// ==========================
 
 	//Checks if an aabb and a line are intersecting
-	bool aabbVSLine(AABB aabb, Line line) {
+	bool aabbVSLine(AABB& aabb, Line& line) {
 		return lineVSAABB(line, aabb);
 	}
 
 	//Checks if an aabb and a circle are intersecting
-	bool aabbVSCircle(AABB aabb, Circle circle) {
+	bool aabbVSCircle(AABB& aabb, Circle& circle) {
 		return circleVSAABB(circle, aabb);
 	}
 
 	//Checks if two AABB's are intersecting
-	bool aabbVSAABB(AABB aabb1, AABB aabb2) {
+	bool aabbVSAABB(AABB& aabb1, AABB& aabb2) {
 		//AABBs have axis (1,0) and (0,1)
 		//Return true if aabb overlaps on both axis
 		return overlapOnAxis(aabb1, aabb2, Vector2f(1.f, 0.f))
 			&& overlapOnAxis(aabb1, aabb2, Vector2f(0.f, 1.f));
 	}
 
-	bool aabbVSBox(AABB aabb, Box box) {
+	bool aabbVSBox(AABB& aabb, Box& box) {
 		std::vector<Vector2f> axes;
 
 		axes.push_back(Vector2f(1.f, 0.f)); //AABB x axis
@@ -320,8 +320,8 @@ namespace Physics2D {
 		axes.push_back(Vector2f(1.f, 0.f)); //Box x axis
 		axes.push_back(Vector2f(0.f, 1.f)); //Box y axis
 
-		rotateVector2f(&axes[2], box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
-		rotateVector2f(&axes[3], box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
+		rotateVector2f(axes[2], box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
+		rotateVector2f(axes[3], box.getRigidbody()->getRotation(), box.getRigidbody()->getPosition());
 
 		for (auto& axis : axes) {
 			if (!overlapOnAxis(aabb, box, axis)) return false;
@@ -335,22 +335,22 @@ namespace Physics2D {
 	// =======================
 
 	//Checks if a box and a line intersect
-	bool boxVSLine(Box box, Line line) {
+	bool boxVSLine(Box& box, Line& line) {
 		return lineVSBox(line, box);
 	}
 
 	//Checks if a box and a circle intersect
-	bool boxVSCircle(Box box, Circle circle) {
+	bool boxVSCircle(Box& box, Circle& circle) {
 		return circleVSBox(circle, box);
 	}
 
 	//Checks if a box and an AABB intersect
-	bool boxVSAABB(Box box, AABB aabb) {
+	bool boxVSAABB(Box& box, AABB& aabb) {
 		return aabbVSBox(aabb, box);
 	}
 
 	//Checks if two boxes intersect
-	bool boxVSBox(Box box1, Box box2) {
+	bool boxVSBox(Box& box1, Box& box2) {
 		std::vector<Vector2f> axes;
 
 		axes.push_back(Vector2f(1.f, 0.f)); //Box1 x axis
@@ -358,10 +358,10 @@ namespace Physics2D {
 		axes.push_back(Vector2f(1.f, 0.f)); //Box2 x axis
 		axes.push_back(Vector2f(0.f, 1.f)); //Box2 y axis
 
-		rotateVector2f(&axes[0], box1.getRigidbody()->getRotation(), box1.getRigidbody()->getPosition());
-		rotateVector2f(&axes[1], box1.getRigidbody()->getRotation(), box1.getRigidbody()->getPosition());
-		rotateVector2f(&axes[2], box2.getRigidbody()->getRotation(), box2.getRigidbody()->getPosition());
-		rotateVector2f(&axes[3], box2.getRigidbody()->getRotation(), box2.getRigidbody()->getPosition());
+		rotateVector2f(axes[0], box1.getRigidbody()->getRotation(), box1.getRigidbody()->getPosition());
+		rotateVector2f(axes[1], box1.getRigidbody()->getRotation(), box1.getRigidbody()->getPosition());
+		rotateVector2f(axes[2], box2.getRigidbody()->getRotation(), box2.getRigidbody()->getPosition());
+		rotateVector2f(axes[3], box2.getRigidbody()->getRotation(), box2.getRigidbody()->getPosition());
 
 		for (auto& axis : axes) {
 			if (!overlapOnAxis(box1, box2, axis)) return false;
@@ -377,7 +377,7 @@ namespace Physics2D {
 
 	//Checks if two AABB's overlap on the given axis 
 	//NOTE: Axis must be normalized
-	bool overlapOnAxis(AABB aabb1, AABB aabb2, Vector2f axis) {
+	bool overlapOnAxis(AABB& aabb1, AABB& aabb2, Vector2f axis) {
 		Vector2f interval1 = getInterval(aabb1, axis);
 		Vector2f interval2 = getInterval(aabb2, axis);
 
@@ -388,7 +388,7 @@ namespace Physics2D {
 
 	//Checks if an AABB and Box overlap on the given axis 
 	//NOTE: Axis must be normalized
-	bool overlapOnAxis(AABB aabb, Box box, Vector2f axis) {
+	bool overlapOnAxis(AABB& aabb, Box& box, Vector2f axis) {
 		Vector2f interval1 = getInterval(aabb, axis);
 		Vector2f interval2 = getInterval(box, axis);
 
@@ -399,7 +399,7 @@ namespace Physics2D {
 
 	//Checks if two Box's overlap on the given axis 
 	//NOTE: Axis must be normalized
-	bool overlapOnAxis(Box box1, Box box2, Vector2f axis) {
+	bool overlapOnAxis(Box& box1, Box& box2, Vector2f axis) {
 		Vector2f interval1 = getInterval(box1, axis);
 		Vector2f interval2 = getInterval(box2, axis);
 
@@ -410,7 +410,7 @@ namespace Physics2D {
 
 	//Gets the minimum and maximum points of an AABB projected onto the given axis
 	//NOTE: Axis must be normalized
-	Vector2f getInterval(AABB aabb, Vector2f axis) {
+	Vector2f getInterval(AABB& aabb, Vector2f axis) {
 		Vector2f result; // result.x = min of interval, result.y = max of interval
 		std::vector<Vector2f> vertices = aabb.getVertices();
 
@@ -428,7 +428,7 @@ namespace Physics2D {
 
 	//Gets the minimum and maximum points of a Box projected onto the given axis
 	//NOTE: Axis must be normalized
-	Vector2f getInterval(Box box, Vector2f axis) {
+	Vector2f getInterval(Box& box, Vector2f axis) {
 		Vector2f result; // result.x = min of interval, result.y = max of interval
 		std::vector<Vector2f> vertices = box.getVertices();
 

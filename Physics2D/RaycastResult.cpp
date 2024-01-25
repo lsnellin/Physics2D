@@ -19,11 +19,11 @@ void RaycastResult::init(sf::Vector2f point, sf::Vector2f normal, float t, bool 
 	this->hit = hit;
 }
 
-void RaycastResult::reset(RaycastResult* result) {
-	result->point = Vector2f(0.f, 0.f);
-	result->normal = Vector2f(0.f, 0.f);
-	result->t = -1;
-	result->hit = false;
+void RaycastResult::reset(RaycastResult& result) {
+	result.point = Vector2f(0.f, 0.f);
+	result.normal = Vector2f(0.f, 0.f);
+	result.t = -1;
+	result.hit = false;
 }
 
 Vector2f RaycastResult::getNormal() {

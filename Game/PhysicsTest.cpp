@@ -2,19 +2,50 @@
 
 using std::cout;
 using std::string;
+using std::endl;
 using std::sqrt;
-using sf::Vector2f;
 using namespace Physics2D;
+using namespace sf;
 
 int main() {
 	runBackgroundTests();
 
+	fluidSim();
 	testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
 	//visualizeCircleVSBox();
 	
 	return 0;
+}
+void fluidSim() {
+
+	Vector2f windowSize = Vector2f(1920, 1080);
+	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
+	window.setFramerateLimit(60);
+	Event event;
+
+	//Define background:
+	sf::RectangleShape background(windowSize);
+	background.setFillColor(Color(0, 0, 0));
+
+	//Define Physics:
+	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
+
+	//Main Game Loop:
+	while (window.isOpen()) {
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+		}
+
+		//Update Physics
+		world.fixedUpdate();
+		window.draw(background);
+		window.display();
+
+	}
 }
 
 void testPhysicsWorld() {
@@ -32,10 +63,14 @@ void testPhysicsWorld() {
 	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
 	//PhysicsObjectList objectList = PhysicsObjectList();
 
-	Circle circle = Circle(100.f, windowSize / 2.f);
-	circle.setFillColor(Color(155, 155, 0));
+	Circle circle1 = Circle(100.f, windowSize / 2.f);
+	circle1.setFillColor(Color(155, 155, 0));
 
-	world.addRigidbody(circle.getRigidbody());
+	Circle circle2 = Circle(100.f, windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
+	circle2.setFillColor(Color(155, 0, 155));
+
+	world.addRigidbody(circle1.getRigidbody());
+	world.addRigidbody(circle2.getRigidbody());
 	//objectList.add(circle);
 
 	//Main Game Loop:
@@ -47,29 +82,47 @@ void testPhysicsWorld() {
 
 			if (event.type == Event::KeyPressed) {
 				if (event.key.scancode == Keyboard::Scan::Up) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+					circle1.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Right) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+					circle1.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Down) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+					circle1.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Left) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+					circle1.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+				}
+
+				else if (event.key.scancode == Keyboard::Scan::W) {
+					circle2.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::D) {
+					circle2.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::S) {
+					circle2.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+				}
+				else if (event.key.scancode == Keyboard::Scan::A) {
+					circle2.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Space) {
-					circle.setCenter(windowSize / 2.f);
-					circle.getRigidbody()->addLinearVelocity(-1.f * circle.getRigidbody()->getLinearVelocity());
+					circle1.setCenter(windowSize / 2.f);
+					circle1.getRigidbody()->addLinearVelocity(-1.f * circle1.getRigidbody()->getLinearVelocity());
+
+					circle2.setCenter(windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
+					circle2.getRigidbody()->addLinearVelocity(-1.f * circle2.getRigidbody()->getLinearVelocity());
 				}
 			}
 		}
 		//Update Physics
 		world.fixedUpdate();
-		circle.updateFromRigidbody();
+		circle1.updateFromRigidbody();
+		circle2.updateFromRigidbody();
 		//objectList.updateObjectList();
 		window.draw(background);
-		window.draw(circle);
+		window.draw(circle1);
+		window.draw(circle2);
 		window.display();	
 
 	}
@@ -304,7 +357,7 @@ void visualizeRaycastBox() {
 	Vector2f point1(rectOrigin.x - maxDist, rectOrigin.y - maxDist);
 	Vector2f point2(rectOrigin.x - minDist, rectOrigin.y - minDist);
 	Vector2f direction(point2 - point1);
-	vNormalize(&direction);
+	vNormalize(direction);
 	sf::Vertex rayLine[] = { Vertex(point1), Vertex(point2) };
 	Ray ray = Ray(point1, direction);
 	RaycastResult result;
@@ -348,9 +401,9 @@ void visualizeRaycastBox() {
 
 		//Update raycast:
 		direction = point2 - point1;
-		vNormalize(&direction);
+		vNormalize(direction);
 		ray = Ray(point1, direction);
-		raycast(box, ray, &result);
+		raycast(box, ray, result);
 
 		rayLine[0] = Vertex(point1);
 		float t = result.getT();
@@ -425,56 +478,87 @@ bool testPointOnLine() {
 
 bool testPointInCircle() {
 	//Test case 1: Circle r = 2, center = (0,0) contains point (1,1):
-	Circle circle = Circle(2.0f, Vector2f(0.f,0.f));
+	Circle* circle = new Circle(2.0f, Vector2f(0.f,0.f));
 	Vector2f point = Vector2f(1.0f, 1.0f);
-	if (!pointInCircle(point, circle)) return false;
+	if (!pointInCircle(point, *circle)) {
+		delete circle;
+		return false;
+	}
+	delete circle;
+
 
 	//Test case 2: Circle r = 2, center = (4,3) contains point (4,1) (EDGE CASE):
-	circle = Circle(2.0f, Vector2f(4.f, 3.f));
+	circle = new Circle(2.0f, Vector2f(4.f, 3.f));
 	point = Vector2f(4.0f, 1.0f);
-	if (!pointInCircle(point, circle)) return false;
+	if (!pointInCircle(point, *circle)) {
+		delete circle;
+		return false;
+	}
 
 	//Test case 3: Circle r = 2, center = (4,3) doesn't contain point (0,0):
 	point = Vector2f(0.0f, 0.0f);
-	if (pointInCircle(point, circle)) return false;
+	if (pointInCircle(point, *circle)) {
+		delete circle;
+		return false;
+	}
 
+	delete circle;
 	return true;
 }
 
 bool testPointInAABB() {
 	//Test case 1: Point (1,1) and AABB{ (0,0) (2,2) } should return true:
-	AABB aabb = AABB(Vector2f(0.f, 0.f), Vector2f(2.0f, 2.0f));
+	AABB* aabb = new AABB(Vector2f(0.f, 0.f), Vector2f(2.0f, 2.0f));
 	Vector2f point = Vector2f(1.0f, 1.0f);
-	if (!pointInAABB(point, aabb)) return false;
+	if (!pointInAABB(point, *aabb)) {
+		delete aabb;
+		return false;
+	}
 
 	//Test case 2: Point (2,2) and AABB{ (0,0) (2,2) } should return true:
 	point = Vector2f(2.f, 2.f);
-	if (!pointInAABB(point, aabb)) return false;
+	if (!pointInAABB(point, *aabb)) {
+		delete aabb;
+		return false;
+	}
 
 	//Test case 3: Point (2.01, 2) and AABB{ (0,0) (2,2) } should return false:
 	point = Vector2f(2.01f, 2.0f);
-	if (pointInAABB(point, aabb)) return false;
+	if (pointInAABB(point, *aabb)) {
+		delete aabb;
+		return false;
+	}
 
+	delete aabb;
 	return true;
 
 }
 
 bool testPointInBox() {
-	Box box = Box(Vector2f(0.f, 0.f), Vector2f(8.f, 4.f));
-	box.rotate(90);
+	Box* box = new Box(Vector2f(0.f, 0.f), Vector2f(8.f, 4.f));
+	box->rotate(90);
 
 	//Test case 1: point (4, 2) is in box:
 	Vector2f point = Vector2f(4.f, 2.f);
-	if (!pointInBox(point, box)) return false;
-
+	if (!pointInBox(point, *box)) {
+		delete box;
+		return false;
+	}
 	//Test case 2: point (2, 2) is in box:
 	point = Vector2f(2.f, 2.f);
-	if (!pointInBox(point, box)) return false;
+	if (!pointInBox(point, *box)) {
+		delete box;
+		return false;
+	}
 
 	//Test case 3: point (-1, -1) is not in box:
 	point = Vector2f(-1.f, -1.f);
-	if (pointInBox(point, box)) return false;
+	if (pointInBox(point, *box)) {
+		delete box;
+		return false;
+	}
 
+	delete box;
 	return true;
 }
 
@@ -484,7 +568,7 @@ bool testRotateVector2f() {
 	float angleDegrees = 180.f;
 	Vector2f origin = Vector2f(-1.f, -1.f);
 	Vector2f expectedAnswer = Vector2f(-2.0f, -2.0f);
-	rotateVector2f(&vec, angleDegrees, origin);
+	rotateVector2f(vec, angleDegrees, origin);
 	if (!compareVector2f(vec, expectedAnswer)) return false;
 
 	//Test 2: Rotate (2, 2) around (2, 2)
@@ -492,7 +576,7 @@ bool testRotateVector2f() {
 	angleDegrees = 200.f;
 	origin = Vector2f(vec);
 	expectedAnswer = Vector2f(vec);
-	rotateVector2f(&vec, angleDegrees, origin);
+	rotateVector2f(vec, angleDegrees, origin);
 	if (!compareVector2f(vec, expectedAnswer)) return false;
 
 	//Test 3: Rotate (5, 0) around (0, 0) -270 degrees:
@@ -500,7 +584,7 @@ bool testRotateVector2f() {
 	angleDegrees = -270.f;
 	origin = Vector2f(0.f, 0.f);
 	expectedAnswer = Vector2f(0.f, 5.f);
-	rotateVector2f(&vec, angleDegrees, origin);
+	rotateVector2f(vec, angleDegrees, origin);
 	if (!compareVector2f(vec, expectedAnswer)) return false;
 
 	return true;
@@ -508,101 +592,167 @@ bool testRotateVector2f() {
 
 bool testLineVSCircle() {
 	//Circle with radius 2 and origin 0
-	Circle circle = Circle(2.0f, Vector2f(0.f, 0.f));
+	Circle* circle = new Circle(2.0f, Vector2f(0.f, 0.f));
 	
 	//Test case 1: line from (-1, 1) to (1, 1) should intersect circle:
-	Line line = Line(Vector2f(-1.f, 1.f), Vector2f(1.f, 1.f));
-	if (!lineVSCircle(line, circle)) return false;
+	Line* line = new Line(Vector2f(-1.f, 1.f), Vector2f(1.f, 1.f));
+	if (!lineVSCircle(*line, *circle)) {
+		delete circle;
+		delete line;
+		return false;
+	}
 
 	//Test case 2: line from (-2, 2) to (2, 2) should intersect circle:
-	line = Line(Vector2f(-2.f, 1.f), Vector2f(2.f, 1.f));
-	if (!lineVSCircle(line, circle)) return false;
+	delete line;
+	line = new Line(Vector2f(-2.f, 1.f), Vector2f(2.f, 1.f));
+	if (!lineVSCircle(*line, *circle)) {
+		delete circle;
+		delete line;
+		return false;
+	}
 
 	//Test case 3: line from (2, 1) to (4, 1) should not intersect circle:
-	line = Line(Vector2f(2.f, 1.f), Vector2f(4.f, 1.f));
-	if (lineVSCircle(line, circle)) return false;
+	delete line;
+	line = new Line(Vector2f(2.f, 1.f), Vector2f(4.f, 1.f));
+	if (lineVSCircle(*line, *circle)) {
+		delete circle;
+		delete line;
+		return false;
+	}
 
-
+	delete circle;
+	delete line;
 	return true;
 }
 
 bool testLineVSAABB() {
 
 	//Test case 1: AABB [ (1,1) (3,3) ] should intersect with line (-10,-10)->(10,10)
-	Line line = Line(Vector2f(-10.f, -10.f), Vector2f(10.f, 10.f));
-	AABB aabb = AABB(Vector2f(1.f, 1.f), Vector2f(3.f, 3.f));
-	if (!lineVSAABB(line, aabb)) return false;
+	Line* line = new Line(Vector2f(-10.f, -10.f), Vector2f(10.f, 10.f));
+	AABB* aabb = new AABB(Vector2f(1.f, 1.f), Vector2f(3.f, 3.f));
+	if (!lineVSAABB(*line, *aabb)) {
+		delete aabb;;
+		delete line;
+		return false;
+	}
 
 	//Test case 2: Same AABB should intersect with line from (1,1)->(-1,-1)
-	line = Line(Vector2f(1.f, 1.f), Vector2f(-1.f, -1.f));
-	if (!lineVSAABB(line, aabb)) return false;
+	delete line;
+	line = new Line(Vector2f(1.f, 1.f), Vector2f(-1.f, -1.f));
+	if (!lineVSAABB(*line, *aabb)) {
+		delete aabb;;
+		delete line;
+		return false;
+	}
 
 	//Test case 3: Same AABB should intersect with line from (0,2)->(2,0):
-	line = Line(Vector2f(0.f, 2.f), Vector2f(2.f, 0.f));
-	if (!lineVSAABB(line, aabb)) return false;
+	delete line;
+	line = new Line(Vector2f(0.f, 2.f), Vector2f(2.f, 0.f));
+	if (!lineVSAABB(*line, *aabb)) {
+		delete aabb;;
+		delete line;
+		return false;
+	}
 
 	//Test case 4: Same AABB should NOT intersect with line from (0, 1.9)->(2,0)
-	line = Line(Vector2f(0.f, 1.9f), Vector2f(2.f, 0.f));
-	if (lineVSAABB(line, aabb)) return false;
+	delete line;
+	line = new Line(Vector2f(0.f, 1.9f), Vector2f(2.f, 0.f));
+	if (lineVSAABB(*line, *aabb)) {
+		delete line;
+		delete aabb;;
+		return false;
+	}
 
 	//Test passed
+	delete aabb;;
+	delete line;
 	return true;
 
 }
 
 bool testLineVSBox() {
 	//Test case 1: Box [ (0,0) (2,2) ] rotated 45 degrees intersects with line from (-5,-.25)->(5,-.25):
-	Line line = Line(Vector2f(-5.f, -0.25f), Vector2f(5.f, -0.25f));
-	Box box = Box(Vector2f(0.f, 0.f), Vector2f(2.f,2.f));
-	box.rotate(45.f);
-	if (!lineVSBox(line, box)) return false;
+	Line* line = new Line(Vector2f(-5.f, -0.25f), Vector2f(5.f, -0.25f));
+	Box* box = new Box(Vector2f(0.f, 0.f), Vector2f(2.f,2.f));
+	box->rotate(45.f);
+	if (!lineVSBox(*line, *box)) {
+		delete box;
+		delete line;
+		return false;
+	}
 
 	//Test case 2: Line is inside of box:
-	line = Line(Vector2f(.5f, .5f), Vector2f(1.5f, 1.5f));
-	if (!lineVSBox(line, box)) return false;
+	line = new Line(Vector2f(.5f, .5f), Vector2f(1.5f, 1.5f));
+	if (!lineVSBox(*line, *box)) {
+		delete box;
+		delete line;
+		return false;
+	}
 
 	//Test case 3: Line intersects with box at exactly one corner:
 	float cornerY = 1.f - (2.f / sqrt(2));
-	line = Line(Vector2f(-5.f, cornerY), Vector2f(5.f, cornerY));
-	if (!lineVSBox(line, box)) return false;
+	line = new Line(Vector2f(-5.f, cornerY), Vector2f(5.f, cornerY));
+	if (!lineVSBox(*line, *box)) {
+		delete box;
+		delete line;
+		return false;
+	}
 
 	//Test case 4: Shouldn't intersect with line from (-5,-5)->(-1,-1)
-	line = Line(Vector2f(-5.f, -5.f), Vector2f(-1.f, -1.f));
-	if (lineVSBox(line, box)) return false;
+	line = new Line(Vector2f(-5.f, -5.f), Vector2f(-1.f, -1.f));
+	if (lineVSBox(*line, *box)) {
+		delete box;
+		delete line;
+		return false;
+	}
 
 	//Test case 5: Shouldn't intersect with line from (-5,-.5)->(5,-.5):
-	line = Line(Vector2f(-5.f, -0.5f), Vector2f(5.f, -0.5f));
-	if (lineVSBox(line, box)) return false;
+	line = new Line(Vector2f(-5.f, -0.5f), Vector2f(5.f, -0.5f));
+	if (lineVSBox(*line, *box)) {
+		delete box;
+		delete line;
+		return false;
+	}
 
 	//Test case 6: Rotate the box 45 more degrees and it shouldn't intersect with line (-5,-.25)->(5,-.25):
-	line = Line(Vector2f(-5.f, -0.25f), Vector2f(5.f, -0.25f));
-	box.rotate(45.f);
-	if (lineVSBox(line, box)) return false;
-
+	line = new Line(Vector2f(-5.f, -0.25f), Vector2f(5.f, -0.25f));
+	box->rotate(45.f);
+	if (lineVSBox(*line, *box)) {
+		delete box;
+		delete line;
+		return false;
+	}
 
 	//Test passed
+	delete box;
+	delete line;
 	return true;
 }
 
 bool testRaycastCircle() {
 	//Test Case 1: Ray starts outside circle and hits circle:
-	Circle circle = Circle(2.f, Vector2f(4.f, 4.f));
+	Circle* circle = new Circle(2.f, Vector2f(4.f, 4.f));
 	Vector2f origin(0.f, 0.f);
 	Vector2f expectedPoint(4.f, 2.f);
 	Vector2f dir = expectedPoint - origin;
-	Vector2f expectedNormal = expectedPoint - circle.getCenter();
-	vNormalize(&expectedNormal);
-	vNormalize(&dir);
+	Vector2f expectedNormal = expectedPoint - circle->getCenter();
+	vNormalize(expectedNormal);
+	vNormalize(dir);
 	Ray ray = Ray(origin, dir);
 	RaycastResult result = RaycastResult();
 
-	if (!raycast(circle, ray, &result)) return false; //Ensure ray hits:
+	if (!raycast(*circle, ray, result)) {
+		delete circle;
+		return false; //Ensure ray hits:
+	}
 
 	//Ensure properties are as expected:
 	if (!compareVector2f(result.getPoint(), expectedPoint, 0.0001f)) {
+		delete circle;
 		return false;
 	}
 	if (!compareVector2f(result.getNormal(), expectedNormal, 0.0001f)) {
+		delete circle;
 		return false;
 	}
 
@@ -610,18 +760,23 @@ bool testRaycastCircle() {
 	origin = Vector2f(3.f, 3.f);
 	expectedPoint = Vector2f(6.f, 4.f);
 	dir = expectedPoint - origin;
-	expectedNormal = expectedPoint - circle.getCenter();
-	vNormalize(&expectedNormal);
-	vNormalize(&dir);
+	expectedNormal = expectedPoint - circle->getCenter();
+	vNormalize(expectedNormal);
+	vNormalize(dir);
 	ray = Ray(origin, dir);
 
-	if (!raycast(circle, ray, &result)) return false; //Ensure ray hits:
+	if (!raycast(*circle, ray, result)) {
+		delete circle;
+		return false; //Ensure ray hits:
+	}
 
 	//Ensure properties are as expected:
 	if (!compareVector2f(result.getPoint(), expectedPoint, 0.0001f)) {
+		delete circle;
 		return false;
 	}
 	if (!compareVector2f(result.getNormal(), expectedNormal, 0.0001f)) {
+		delete circle;
 		return false;
 	}
 
@@ -630,9 +785,13 @@ bool testRaycastCircle() {
 	dir = Vector2f(0.f, 1.f);
 	ray = Ray(origin, dir);
 
-	if (raycast(circle, ray, &result)) return false; //Ensure ray doesn't hit:
+	if (raycast(*circle, ray, result)) {
+		delete circle;
+		return false; //Ensure ray doesn't hit:
+	}
 
 	//Test passed
+	delete circle;
 	return true;
 }
 
@@ -644,13 +803,20 @@ bool testRaycastAABB() {
 	Vector2f expectedPoint(0.f,1.f);
 	Vector2f expectedNormal = dir * -1.f;
 	Ray ray = Ray(origin, dir);
-	AABB aabb = AABB(Vector2f(0.f, 0.f), Vector2f(2.f, 2.f));
-	if (!raycast(aabb, ray, &result)) return false;
+	AABB* aabb = new AABB(Vector2f(0.f, 0.f), Vector2f(2.f, 2.f));
+
+	//Cast ray
+	if (!raycast(*aabb, ray, result)) {
+		delete aabb;
+		return false;
+	}
 	//Ensure properties are as expected:
 	if (!compareVector2f(result.getPoint(), expectedPoint, 0.0001f)) {
+		delete aabb;
 		return false;
 	}
 	if (!compareVector2f(result.getNormal(), expectedNormal, 0.0001f)) {
+		delete aabb;
 		return false;
 	}
 
@@ -660,16 +826,24 @@ bool testRaycastAABB() {
 	expectedPoint = Vector2f(2.f, 1.f);
 	expectedNormal = dir * -1.f;
 	ray = Ray(origin, dir);
-	if (!raycast(aabb, ray, &result)) return false;
+
+	//Cast ray
+	if (!raycast(*aabb, ray, result)) {
+		delete aabb;
+		return false;
+	}
 	//Ensure properties are as expected:
 	if (!compareVector2f(result.getPoint(), expectedPoint, 0.0001f)) {
+		delete aabb;
 		return false;
 	}
 	if (!compareVector2f(result.getNormal(), expectedNormal, 0.0001f)) {
+		delete aabb;
 		return false;
 	}
 
 	//Test passed
+	delete aabb;
 	return true;
 }
 

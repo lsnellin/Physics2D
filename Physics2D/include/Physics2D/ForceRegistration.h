@@ -17,9 +17,9 @@ namespace Physics2D {
 
 	template <class T>
 	bool ForceRegistration::equals(T other) {
-		if (!std::is_same<T, ForceRegistration>::value) return false;
+		if (!std::is_same<T, ForceRegistration*>::value) return false;
 
-		ForceRegistration otherFR = (ForceRegistration)other;
-		return this->forceGenerator == otherFR.forceGenerator && this->rigidbody == otherFR.rigidbody;
+		ForceRegistration* otherFR = (ForceRegistration*)other;
+		return this->forceGenerator == otherFR->forceGenerator && this->rigidbody == otherFR->rigidbody;
 	}
 }

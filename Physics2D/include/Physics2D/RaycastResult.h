@@ -12,7 +12,7 @@ namespace Physics2D {
 	public:
 		RaycastResult();
 		void init(sf::Vector2f point, sf::Vector2f normal, float t, bool hit);
-		static void reset(Physics2D::RaycastResult* result);
+		static void reset(Physics2D::RaycastResult& result);
 		sf::Vector2f getPoint();
 		sf::Vector2f getNormal();
 		float getT();

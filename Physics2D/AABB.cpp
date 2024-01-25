@@ -6,27 +6,31 @@ using namespace sf;
 AABB::AABB():
 size(Vector2f()), 
 halfSize(size / 2.0f),
-rigidbody()
+rigidbody(new Rigidbody2D(this))
 {
 }
 
 AABB::AABB(Vector2f min, Vector2f max) :
 	size(max - min),
 	halfSize(size / 2.0f),
-	rigidbody(min + halfSize, 0.f)
+	rigidbody(new Rigidbody2D(min + halfSize, 0.f, this))
 {
 }
 
-Rigidbody2D AABB::getRigidbody() {
+AABB::~AABB() {
+	delete rigidbody;
+}
+
+Rigidbody2D* AABB::getRigidbody() {
 	return this->rigidbody;
 }
 
 Vector2f AABB::getMin() {
-	return this->rigidbody.getPosition() - this->halfSize;
+	return this->rigidbody->getPosition() - this->halfSize;
 }
 
 Vector2f AABB::getMax() {
-	return this->rigidbody.getPosition() + this->halfSize;
+	return this->rigidbody->getPosition() + this->halfSize;
 }
 
 std::vector<Vector2f> AABB::getVertices() {
@@ -40,7 +44,11 @@ std::vector<Vector2f> AABB::getVertices() {
 	return vertices;
 }
 
-void AABB::setRigidbody(Rigidbody2D rigidbody) {
+Type AABB::getType() {
+	return Type::AABB;
+}
+
+void AABB::setRigidbody(Rigidbody2D* rigidbody) {
 	this->rigidbody = rigidbody;
 }
 

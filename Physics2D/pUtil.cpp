@@ -40,20 +40,20 @@ namespace Physics2D {
 		return (x - y) > max1XY * std::numeric_limits<float>::epsilon();
 	}
 
-	void rotateVector2f(sf::Vector2f* vec, float angleDegrees, sf::Vector2f origin) {
+	void rotateVector2f(sf::Vector2f& vec, float angleDegrees, sf::Vector2f origin) {
 		//Convert angle to radians:
 		float radians = angleDegrees * PI / 180.f;
 		//Move vector to origin:
-		*vec -= origin;
-		//Rotate moved vector:
-		float newX = vec->x * std::cos(radians) - vec->y * std::sin(radians);
-		float newY = vec->x * std::sin(radians) + vec->y * std::cos(radians);
+		vec -= origin;
 
-		vec->x = newX;
-		vec->y = newY;
+		//Rotate moved vector:
+		float newX = vec.x * std::cos(radians) - vec.y * std::sin(radians);
+		float newY = vec.x * std::sin(radians) + vec.y * std::cos(radians);
+		vec.x = newX;
+		vec.y = newY;
 
 		//Move vector back from origin
-		*vec += origin;
+		vec += origin;
 	}
 
 	float vDot(sf::Vector2f v1, sf::Vector2f v2) {
@@ -68,9 +68,9 @@ namespace Physics2D {
 		return std::powf(vec.x, 2) + std::powf(vec.y, 2);
 	}
 
-	void vNormalize(sf::Vector2f* vec) {
-		float length = vLength(*vec);
-		vec->x = vec->x / length;
-		vec->y = vec->y / length;
+	void vNormalize(sf::Vector2f& vec) {
+		float length = vLength(vec);
+		vec.x = vec.x / length;
+		vec.y = vec.y / length;
 	}
 };

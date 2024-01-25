@@ -8,6 +8,6 @@ namespace Physics2D {
 		sf::Vector2f gravity;
 	public:
 		Gravity2D(sf::Vector2f force);
-		void updateForce(Physics2D::Rigidbody2D * rb, float dt);
+		void updateForce(Physics2D::Rigidbody2D & rb, float dt);
 	};
 }
