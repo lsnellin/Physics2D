@@ -7,7 +7,7 @@
 #include <cmath>
 #include <iostream>
 
-void fluidSim();
+void manyBalls();
 void testPhysicsWorld();
 void visualizeCircleVSBox();
 void visualizeCircleVSCircle();

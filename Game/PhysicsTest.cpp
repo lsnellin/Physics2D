@@ -10,15 +10,16 @@ using namespace sf;
 int main() {
 	runBackgroundTests();
 
-	fluidSim();
-	testPhysicsWorld();
+	//fluidSim();
+	manyBalls();
+	//testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
 	//visualizeCircleVSBox();
 	
 	return 0;
 }
-void fluidSim() {
+void manyBalls() {
 
 	Vector2f windowSize = Vector2f(1920, 1080);
 	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
@@ -32,17 +33,65 @@ void fluidSim() {
 	//Define Physics:
 	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
 
+	// Create balls:
+	Circle c1 = Circle(16.f, Vector2f(windowSize.x / 3, windowSize.y / 3));
+	Circle c2 = Circle(16.f, Vector2f(windowSize.x * 2/ 3, windowSize.y / 3));
+	Circle c3 = Circle(16.f, Vector2f(windowSize.x / 3, windowSize.y * 2 / 3));
+	Circle c4 = Circle(16.f, Vector2f(windowSize.x * 2 / 3, windowSize.y * 2 / 3));
+
+	c1.setFillColor(Color(255, 127, 127));
+	c2.setFillColor(Color(127, 255, 127));
+	c3.setFillColor(Color(127, 127, 255));
+	c4.setFillColor(Color(255, 255, 255));
+
+	world.addRigidbody(c1.getRigidbody());
+	world.addRigidbody(c2.getRigidbody());
+	world.addRigidbody(c3.getRigidbody());
+	world.addRigidbody(c4.getRigidbody());
+
 	//Main Game Loop:
 	while (window.isOpen()) {
 		while (window.pollEvent(event)) {
 			if (event.type == Event::Closed) {
 				window.close();
 			}
+			if (event.type == Event::KeyPressed) {
+				if (event.key.scancode == Keyboard::Scan::Space) {
+					Vector2f vel1 = (windowSize / 2.f) - c1.getRigidbody()->getPosition();
+					Vector2f vel2 = (windowSize / 2.f) - c2.getRigidbody()->getPosition();
+					Vector2f vel3 = (windowSize / 2.f) - c3.getRigidbody()->getPosition();
+					Vector2f vel4 = (windowSize / 2.f) - c4.getRigidbody()->getPosition();
+
+					vNormalize(vel1);
+					vNormalize(vel2);
+					vNormalize(vel3);
+					vNormalize(vel4);
+
+					c1.getRigidbody()->addLinearVelocity(vel1 * 16.f);
+					c2.getRigidbody()->addLinearVelocity(vel2 * 16.f);
+					c3.getRigidbody()->addLinearVelocity(vel3 * 16.f);
+					c4.getRigidbody()->addLinearVelocity(vel4 * 16.f);
+				}
+				if (event.key.scancode == Keyboard::Scan::Up) {
+				}
+			}
 		}
 
 		//Update Physics
 		world.fixedUpdate();
+
+		c1.updateFromRigidbody();
+		c2.updateFromRigidbody();
+		c3.updateFromRigidbody();
+		c4.updateFromRigidbody();
+
 		window.draw(background);
+
+		window.draw(c1);
+		window.draw(c2);
+		window.draw(c3);
+		window.draw(c4);
+
 		window.display();
 
 	}
@@ -63,14 +112,14 @@ void testPhysicsWorld() {
 	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
 	//PhysicsObjectList objectList = PhysicsObjectList();
 
-	Circle circle1 = Circle(100.f, windowSize / 2.f);
-	circle1.setFillColor(Color(155, 155, 0));
+	Circle circle = Circle(100.f, windowSize / 2.f);
+	circle.setFillColor(Color(155, 155, 0));
 
-	Circle circle2 = Circle(100.f, windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
-	circle2.setFillColor(Color(155, 0, 155));
+	AABB aabb = AABB(Vector2f(0.f,0.f), Vector2f(100.f,100.f));
+	aabb.setFillColor(Color(155, 0, 155));
 
-	world.addRigidbody(circle1.getRigidbody());
-	world.addRigidbody(circle2.getRigidbody());
+	world.addRigidbody(circle.getRigidbody());
+	world.addRigidbody(aabb.getRigidbody());
 	//objectList.add(circle);
 
 	//Main Game Loop:
@@ -82,47 +131,47 @@ void testPhysicsWorld() {
 
 			if (event.type == Event::KeyPressed) {
 				if (event.key.scancode == Keyboard::Scan::Up) {
-					circle1.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Right) {
-					circle1.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+					circle.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Down) {
-					circle1.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Left) {
-					circle1.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+					circle.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 
 				else if (event.key.scancode == Keyboard::Scan::W) {
-					circle2.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+					aabb.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::D) {
-					circle2.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+					aabb.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::S) {
-					circle2.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+					aabb.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::A) {
-					circle2.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+					aabb.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Space) {
-					circle1.setCenter(windowSize / 2.f);
-					circle1.getRigidbody()->addLinearVelocity(-1.f * circle1.getRigidbody()->getLinearVelocity());
+					circle.setCenter(windowSize / 2.f);
+					circle.getRigidbody()->addLinearVelocity(-1.f * circle.getRigidbody()->getLinearVelocity());
 
-					circle2.setCenter(windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
-					circle2.getRigidbody()->addLinearVelocity(-1.f * circle2.getRigidbody()->getLinearVelocity());
+					aabb.setCenter(windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
+					aabb.getRigidbody()->addLinearVelocity(-1.f * aabb.getRigidbody()->getLinearVelocity());
 				}
 			}
 		}
 		//Update Physics
 		world.fixedUpdate();
-		circle1.updateFromRigidbody();
-		circle2.updateFromRigidbody();
+		circle.updateFromRigidbody();
+		aabb.updateFromRigidbody();
 		//objectList.updateObjectList();
 		window.draw(background);
-		window.draw(circle1);
-		window.draw(circle2);
+		window.draw(circle);
+		window.draw(aabb);
 		window.display();	
 
 	}

@@ -14,8 +14,17 @@ namespace Physics2D {
 			return findCollisionFeatures(circ1, circ2);
 		}
 
+		// Circle vs AABB
 		if (c1->getType() == Type::Circle && c2->getType() == Type::AABB) {
-			return findCollisionFeatures(c1, c2);
+			Circle* circ = static_cast<Circle*>(c1);
+			AABB* ab = static_cast<AABB*>(c2);
+			return findCollisionFeatures(circ, ab);
+		}
+
+		if (c1->getType() == Type::AABB && c2->getType() == Type::Circle) {
+			AABB* ab = static_cast<AABB*>(c1);
+			Circle* circ = static_cast<Circle*>(c2);
+			return findCollisionFeatures(circ, ab);
 		}
 	}
 
@@ -39,11 +48,60 @@ namespace Physics2D {
 		return result;
 	}
 
+	CollisionManifold findCollisionFeatures(Circle* c, AABB* ab) {
+		CollisionManifold result = CollisionManifold();
+		Vector2f center = c->getCenter();
+
+		//Step 1: Find if objects are colliding:
+		if (!circleVSAABB(*c, *ab)) return result;
+
+		//Step 2: Find the normal vector:
+
+		// Catch the case where circle center is inside AABB:
+		if (pointInAABB(center, *ab)) {
+		}
+
+		// Get closest point to circle center:
+		int closestX, closestY;
+
+		if (abs(center.x - ab->getMax().x) <= abs(center.x - ab->getMin().x)) {
+			closestX = ab->getMax().x;
+		}
+		else {
+			closestX = ab->getMin().x;
+		}
+		if (abs(center.y - ab->getMax().y) <= abs(center.y - ab->getMin().y)) {
+			closestY = ab->getMax().y;
+		}
+		else {
+			closestY = ab->getMin().y;
+		}
+
+		// Step 3: Compute normal vector
+
+		if (center.x >= ab->getMin().x && center.x <= ab->getMax().x) {
+			closestX = center.x;
+		}
+		else if (center.y >= ab->getMin().x && center.y <= ab->getMax().y) {
+			closestY = center.y;
+		}
+
+		Vector2f normal = -1.f * (center - Vector2f(closestX, closestY));
+		float normalLength = vLength(normal);
+		normal = normal / normalLength;
+
+		// Step 4: Get contact point
+
+		// Step 5: Generate and return collision manifold:
+		float depth = c->getRadius() - normalLength;
+		result = CollisionManifold(normal, depth);
+		result.addContactPoint(c->getCenter() + normal * (c->getRadius() - depth));
+		return result;
+
+	}
+
 	CollisionManifold findCollisionFeatures(AABB* ab, Circle* c) {
 		return findCollisionFeatures(c, ab);
 	}
 
-	CollisionManifold findCollisionFeatures(Circle* c, AABB* ab) {
-		return findCollisionFeatures(c, ab);
-	}
 }

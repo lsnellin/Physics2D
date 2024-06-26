@@ -4,6 +4,7 @@
 #include "Circle.h"
 #include "AABB.h"
 #include "Box.h"
+#include "IntersectionDetector.h"
 #include <cmath>
 
 namespace Physics2D {

@@ -33,7 +33,7 @@ void PhysicsSystem2D::fixedUpdate() {
 	bodies2.clear();
 	collisions.clear();
 
-	CollisionManifold result;
+	CollisionManifold result = CollisionManifold();
 
 	//Check each possible combination of objects for a collision
 	for (vector<Rigidbody2D*>::iterator body1 = rigidbodies.begin(); body1 < rigidbodies.end(); body1++) {

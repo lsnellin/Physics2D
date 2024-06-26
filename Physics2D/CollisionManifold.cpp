@@ -5,7 +5,7 @@ using sf::Vector2f;
 using std::vector;
 
 CollisionManifold::CollisionManifold() :
-	normal(),
+	normal(Vector2f()),
 	contactPoints(),
 	depth(),
 	isColliding(false)
