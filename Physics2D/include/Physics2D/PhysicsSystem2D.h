@@ -5,6 +5,7 @@
 #include "CollisionManifold.h"
 #include "Collisions.h"
 #include "Collider2D.h"
+#include "ObjectList.h"
 #include <SFML/Graphics.hpp>
 
 namespace Physics2D {
@@ -27,5 +28,6 @@ namespace Physics2D {
 		void fixedUpdate();
 		void addRigidbody(Physics2D::Rigidbody2D* rb);
 		void applyImpulse(Physics2D::Rigidbody2D& rb1, Physics2D::Rigidbody2D& rb2, Physics2D::CollisionManifold m);
+		void addObjectList(std::vector<Physics2D::PhysicsObject*> objects);
 	};
 }

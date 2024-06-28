@@ -7,7 +7,7 @@
 #include <cmath>
 #include <iostream>
 
-void manyBalls();
+void manyBalls(int ballsX, int ballsY, float radius);
 void testPhysicsWorld();
 void visualizeCircleVSBox();
 void visualizeCircleVSCircle();

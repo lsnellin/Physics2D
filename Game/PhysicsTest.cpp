@@ -4,6 +4,7 @@ using std::cout;
 using std::string;
 using std::endl;
 using std::sqrt;
+using std::vector;
 using namespace Physics2D;
 using namespace sf;
 
@@ -11,7 +12,7 @@ int main() {
 	runBackgroundTests();
 
 	//fluidSim();
-	manyBalls();
+	manyBalls(15, 15, 5.f);
 	//testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
@@ -19,7 +20,7 @@ int main() {
 	
 	return 0;
 }
-void manyBalls() {
+void manyBalls(int ballsX, int ballsY, float ballRadius) {
 
 	Vector2f windowSize = Vector2f(1920, 1080);
 	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "MyGame");
@@ -31,23 +32,29 @@ void manyBalls() {
 	background.setFillColor(Color(0, 0, 0));
 
 	//Define Physics:
-	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
+	PhysicsSystem2D world = PhysicsSystem2D(.5, Vector2f(0.f, 0.f));
 
 	// Create balls:
-	Circle c1 = Circle(16.f, Vector2f(windowSize.x / 3, windowSize.y / 3));
-	Circle c2 = Circle(16.f, Vector2f(windowSize.x * 2/ 3, windowSize.y / 3));
-	Circle c3 = Circle(16.f, Vector2f(windowSize.x / 3, windowSize.y * 2 / 3));
-	Circle c4 = Circle(16.f, Vector2f(windowSize.x * 2 / 3, windowSize.y * 2 / 3));
+	vector<Circle*> particles;
+	for (int i = 0; i < ballsX; i++) {
+		for (int j = 0; j < ballsY; j++) {
+			float centerX = (windowSize.x / 4) + (windowSize.x * i) / (2 * ballsX);
+			float centerY = (windowSize.y / 4) + (windowSize.y * j) / (2 * ballsY);
+			Circle* particle = new Circle(ballRadius, Vector2f(centerX, centerY));
 
-	c1.setFillColor(Color(255, 127, 127));
-	c2.setFillColor(Color(127, 255, 127));
-	c3.setFillColor(Color(127, 127, 255));
-	c4.setFillColor(Color(255, 255, 255));
+			// Generate a random color
+			particle->setFillColor(
+				Color((sf::Uint8)std::rand() % 256, (sf::Uint8)std::rand() % 256, (sf::Uint8)std::rand() % 256)
+			);
 
-	world.addRigidbody(c1.getRigidbody());
-	world.addRigidbody(c2.getRigidbody());
-	world.addRigidbody(c3.getRigidbody());
-	world.addRigidbody(c4.getRigidbody());
+			particle->getRigidbody()->setCor(0.99f);
+			particles.push_back(particle);
+			world.addRigidbody(particle->getRigidbody());
+		}
+	}
+
+	
+
 
 	//Main Game Loop:
 	while (window.isOpen()) {
@@ -55,43 +62,32 @@ void manyBalls() {
 			if (event.type == Event::Closed) {
 				window.close();
 			}
-			if (event.type == Event::KeyPressed) {
-				if (event.key.scancode == Keyboard::Scan::Space) {
-					Vector2f vel1 = (windowSize / 2.f) - c1.getRigidbody()->getPosition();
-					Vector2f vel2 = (windowSize / 2.f) - c2.getRigidbody()->getPosition();
-					Vector2f vel3 = (windowSize / 2.f) - c3.getRigidbody()->getPosition();
-					Vector2f vel4 = (windowSize / 2.f) - c4.getRigidbody()->getPosition();
-
-					vNormalize(vel1);
-					vNormalize(vel2);
-					vNormalize(vel3);
-					vNormalize(vel4);
-
-					c1.getRigidbody()->addLinearVelocity(vel1 * 16.f);
-					c2.getRigidbody()->addLinearVelocity(vel2 * 16.f);
-					c3.getRigidbody()->addLinearVelocity(vel3 * 16.f);
-					c4.getRigidbody()->addLinearVelocity(vel4 * 16.f);
-				}
-				if (event.key.scancode == Keyboard::Scan::Up) {
-				}
-			}
 		}
 
 		//Update Physics
-		world.fixedUpdate();
 
-		c1.updateFromRigidbody();
-		c2.updateFromRigidbody();
-		c3.updateFromRigidbody();
-		c4.updateFromRigidbody();
+		for (int i = 0; i < particles.size(); i++) {
+			for (int j = i + 1; j < particles.size(); j++) {
+				Circle* p1 = particles[i];
+				Circle* p2 = particles[j];
+
+				Vector2f velocity = p2->getCenter() - p1->getCenter();
+				velocity /= 100000.f;
+
+				p1->getRigidbody()->addLinearVelocity(velocity);
+				p2->getRigidbody()->addLinearVelocity(velocity * -1.f);
+			}
+		}
+
+		world.fixedUpdate();
 
 		window.draw(background);
 
-		window.draw(c1);
-		window.draw(c2);
-		window.draw(c3);
-		window.draw(c4);
-
+		// Calculate positions and draw particles:
+		for (Circle* particle : particles) {
+			particle->updateFromRigidbody();
+			window.draw(*particle);
+		}
 		window.display();
 
 	}

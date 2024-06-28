@@ -1,11 +1,12 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include "PhysicsObject.h"
 #include "Rigidbody2D.h"
 #include "pUtil.h"
 
 namespace Physics2D {
-	class Box: public sf::RectangleShape, public Physics2D::Collider2D
+	class Box: public sf::RectangleShape, public Physics2D::Collider2D, public Physics2D::PhysicsObject
 	{
 	private:
 		sf::Vector2f size;
@@ -20,12 +21,13 @@ namespace Physics2D {
 		sf::Vector2f getHalfsize();
 		void rotate(float rotation);
 		std::vector<sf::Vector2f> getVertices();
-		Physics2D::Rigidbody2D* getRigidbody();
-		Physics2D::Type getType();
 		void setCenter(sf::Vector2f position);
 		void setRigidbody(Physics2D::Rigidbody2D* rigidbody);
 		void setSize(sf::Vector2f size);
-		void updateFromRigidbody();
+
+		virtual Physics2D::Type getType() override;
+		virtual Physics2D::Rigidbody2D* getRigidbody() override;
+		void updateFromRigidbody() override;
 	};
 }
 

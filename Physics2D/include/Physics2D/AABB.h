@@ -1,9 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "PhysicsObject.h"
 #include "Rigidbody2D.h"
 
 namespace Physics2D{
-	class AABB : public Physics2D::Collider2D, public sf::RectangleShape
+	class AABB : public Physics2D::Collider2D, public sf::RectangleShape, public Physics2D::PhysicsObject
 	{
 	private:
 		sf::Vector2f size;
@@ -13,14 +14,16 @@ namespace Physics2D{
 		AABB();
 		AABB(sf::Vector2f min, sf::Vector2f max);
 		~AABB();
-		Physics2D::Rigidbody2D* getRigidbody();
+		
 		sf::Vector2f getMin();
 		sf::Vector2f getMax();
 		std::vector<sf::Vector2f> getVertices();
-		Type getType();
 		void setCenter(sf::Vector2f position);
 		void setRigidbody(Physics2D::Rigidbody2D* rigidbody);
 		void setSize(sf::Vector2f size);
-		void updateFromRigidbody();
+
+		virtual Physics2D::Type getType() override;
+		virtual void updateFromRigidbody() override;
+		virtual Physics2D::Rigidbody2D* getRigidbody() override;
 	};
 }
