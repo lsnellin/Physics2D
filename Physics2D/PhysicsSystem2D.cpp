@@ -103,3 +103,9 @@ void PhysicsSystem2D::addRigidbody(Rigidbody2D* rb) {
 	rigidbodies.push_back(rb);
 	forceRegistry.add(gravity, rb);
 }
+
+void PhysicsSystem2D::addObjectList(vector<PhysicsObject*> objects) {
+	for (PhysicsObject* obj : objects) {
+		addRigidbody(obj->getRigidbody());
+	}
+}

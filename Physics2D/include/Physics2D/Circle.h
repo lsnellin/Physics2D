@@ -1,9 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "PhysicsObject.h"
 #include "Rigidbody2D.h"
 
 namespace Physics2D {
-	class Circle: public sf::CircleShape, public Physics2D::Collider2D
+	class Circle: public sf::CircleShape, public Physics2D::Collider2D, public Physics2D::PhysicsObject
 	{
 	private:
 		float radius;
@@ -15,12 +16,13 @@ namespace Physics2D {
 		~Circle();
 		float getRadius();
 		sf::Vector2f getCenter();
-		Physics2D::Rigidbody2D* getRigidbody();
-		virtual Physics2D::Type getType() override;
 		void setCenter(sf::Vector2f center);
 		void setRadius(float radius);
 		void setRigidbody(Physics2D::Rigidbody2D* rigidbody);
-		void updateFromRigidbody();
+
+		virtual Physics2D::Type getType() override;
+		virtual void updateFromRigidbody() override;
+		virtual Physics2D::Rigidbody2D* getRigidbody() override;
 	};
 }
 

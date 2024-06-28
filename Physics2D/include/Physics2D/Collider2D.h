@@ -1,5 +1,4 @@
 #pragma once
-#include "Collider2D.h"
 #include <SFML/Graphics.hpp>
 
 

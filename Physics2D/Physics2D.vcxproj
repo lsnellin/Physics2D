@@ -159,6 +159,7 @@
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Collider2D.cpp" />
+    <ClCompile Include="ObjectList.cpp" />
     <ClCompile Include="Collisions.cpp" />
     <ClCompile Include="CollisionManifold.cpp" />
     <ClCompile Include="ForceRegistration.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="Gravity2D.cpp" />
     <ClCompile Include="IntersectionDetector.cpp" />
     <ClCompile Include="Line.cpp" />
+    <ClCompile Include="PhysicsObject.cpp" />
     <ClCompile Include="PhysicsSystem2D.cpp" />
     <ClCompile Include="pUtil.cpp" />
     <ClCompile Include="Ray.cpp" />
@@ -178,6 +180,7 @@
     <ClInclude Include="include\Physics2D\Box.h" />
     <ClInclude Include="include\Physics2D\Circle.h" />
     <ClInclude Include="include\Physics2D\Collider2D.h" />
+    <ClInclude Include="include\Physics2D\ObjectList.h" />
     <ClInclude Include="include\Physics2D\Collisions.h" />
     <ClInclude Include="include\Physics2D\CollisionManifold.h" />
     <ClInclude Include="include\Physics2D\ForceGenerator.h" />
@@ -187,6 +190,7 @@
     <ClInclude Include="include\Physics2D\Gravity2D.h" />
     <ClInclude Include="include\Physics2D\IntersectionDetector.h" />
     <ClInclude Include="include\Physics2D\Line.h" />
+    <ClInclude Include="include\Physics2D\PhysicsObject.h" />
     <ClInclude Include="include\Physics2D\PhysicsSystem2D.h" />
     <ClInclude Include="include\Physics2D\Ray.h" />
     <ClInclude Include="include\Physics2D\RaycastResult.h" />
