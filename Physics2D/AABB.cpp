@@ -11,10 +11,12 @@ rigidbody(new Rigidbody2D(this))
 }
 
 AABB::AABB(Vector2f min, Vector2f max) :
+	size(max - min),
+	halfSize(size / 2.f),
 	rigidbody(new Rigidbody2D(min + halfSize, 0.f, this))
 {
-	setSize(max - min);
 	RectangleShape::setOrigin(min + halfSize);
+	RectangleShape::setSize(size);
 }
 
 AABB::~AABB() {
@@ -46,6 +48,10 @@ std::vector<Vector2f> AABB::getVertices() {
 
 Type AABB::getType() {
 	return Type::AABB;
+}
+
+Vector2f AABB::getCenter() {
+	return this->rigidbody->getPosition();
 }
 
 void AABB::setRigidbody(Rigidbody2D* rigidbody) {

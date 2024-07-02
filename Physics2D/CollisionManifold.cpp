@@ -37,3 +37,21 @@ vector<Vector2f> CollisionManifold::getContactPoints() {
 bool CollisionManifold::getColliding() {
 	return this->isColliding;
 }
+
+void CollisionManifold::rotate(float r, Vector2f origin) {
+	// Rotate normal around (0, 0):
+	rotateVector2f(this->normal, r, Vector2f(0.f, 0.f));
+
+	// Rotate contact points around origin:
+	for (Vector2f contactPoint : this->contactPoints) {
+		rotateVector2f(contactPoint, r, origin);
+	}
+}
+
+void CollisionManifold::setNormal(Vector2f normal) {
+	this->normal = normal;
+}
+
+void CollisionManifold::setDepth(float depth) {
+	this->depth = depth;
+}

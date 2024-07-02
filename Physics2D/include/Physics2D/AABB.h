@@ -17,6 +17,7 @@ namespace Physics2D{
 		
 		sf::Vector2f getMin();
 		sf::Vector2f getMax();
+		sf::Vector2f getCenter();
 		std::vector<sf::Vector2f> getVertices();
 		void setCenter(sf::Vector2f position);
 		void setRigidbody(Physics2D::Rigidbody2D* rigidbody);

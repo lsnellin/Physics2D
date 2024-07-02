@@ -40,6 +40,10 @@ Vector2f Box::getHalfsize() {
 	return this->halfSize;
 }
 
+Vector2f Box::getCenter() {
+	return this->getRigidbody()->getPosition();
+}
+
 void Box::rotate(float rotation) {
 	float newRotation = rigidbody->getRotation() + rotation;
 	newRotation -= ((int)newRotation / 360) * 360;

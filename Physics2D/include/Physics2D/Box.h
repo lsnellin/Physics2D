@@ -19,6 +19,7 @@ namespace Physics2D {
 		sf::Vector2f getLocalMin();
 		sf::Vector2f getLocalMax();
 		sf::Vector2f getHalfsize();
+		sf::Vector2f getCenter();
 		void rotate(float rotation);
 		std::vector<sf::Vector2f> getVertices();
 		void setCenter(sf::Vector2f position);

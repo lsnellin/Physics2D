@@ -12,8 +12,8 @@ int main() {
 	runBackgroundTests();
 
 	//fluidSim();
-	manyBalls(15, 15, 5.f);
-	//testPhysicsWorld();
+	//manyBalls(8, 8, 25.f);
+	testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
 	//visualizeCircleVSBox();
@@ -47,7 +47,6 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 				Color((sf::Uint8)std::rand() % 256, (sf::Uint8)std::rand() % 256, (sf::Uint8)std::rand() % 256)
 			);
 
-			particle->getRigidbody()->setCor(0.99f);
 			particles.push_back(particle);
 			world.addRigidbody(particle->getRigidbody());
 		}
@@ -102,21 +101,21 @@ void testPhysicsWorld() {
 
 	//Define background:
 	sf::RectangleShape background(windowSize);
-	background.setFillColor(Color(0, 0, 0));
+	background.setFillColor(Color(200, 200, 200));
 
 	//Define Physics:
 	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
-	//PhysicsObjectList objectList = PhysicsObjectList();
 
-	Circle circle = Circle(100.f, windowSize / 2.f);
-	circle.setFillColor(Color(155, 155, 0));
+	AABB ab1 = AABB(Vector2f(0.f, 0.f), Vector2f(100.f, 100.f));
+	ab1.setFillColor(Color(155, 155, 0));
+	ab1.setCenter(windowSize / 4.f);
 
-	AABB aabb = AABB(Vector2f(0.f,0.f), Vector2f(100.f,100.f));
-	aabb.setFillColor(Color(155, 0, 155));
+	AABB ab2 = AABB(Vector2f(0.f,0.f), Vector2f(100.f,100.f));
+	ab2.setFillColor(Color(155, 0, 155));
+	ab2.setCenter(windowSize / 2.f);
 
-	world.addRigidbody(circle.getRigidbody());
-	world.addRigidbody(aabb.getRigidbody());
-	//objectList.add(circle);
+	world.addRigidbody(ab1.getRigidbody());
+	world.addRigidbody(ab2.getRigidbody());
 
 	//Main Game Loop:
 	while (window.isOpen()) {
@@ -127,47 +126,47 @@ void testPhysicsWorld() {
 
 			if (event.type == Event::KeyPressed) {
 				if (event.key.scancode == Keyboard::Scan::Up) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+					ab1.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Right) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+					ab1.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Down) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+					ab1.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Left) {
-					circle.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+					ab1.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 
 				else if (event.key.scancode == Keyboard::Scan::W) {
-					aabb.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+					ab2.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::D) {
-					aabb.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+					ab2.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::S) {
-					aabb.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+					ab2.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::A) {
-					aabb.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+					ab2.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Space) {
-					circle.setCenter(windowSize / 2.f);
-					circle.getRigidbody()->addLinearVelocity(-1.f * circle.getRigidbody()->getLinearVelocity());
+					ab1.setCenter(windowSize / 2.f);
+					ab1.getRigidbody()->addLinearVelocity(-1.f * ab1.getRigidbody()->getLinearVelocity());
 
-					aabb.setCenter(windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
-					aabb.getRigidbody()->addLinearVelocity(-1.f * aabb.getRigidbody()->getLinearVelocity());
+					ab2.setCenter(windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
+					ab2.getRigidbody()->addLinearVelocity(-1.f * ab2.getRigidbody()->getLinearVelocity());
 				}
 			}
 		}
 		//Update Physics
 		world.fixedUpdate();
-		circle.updateFromRigidbody();
-		aabb.updateFromRigidbody();
+		ab1.updateFromRigidbody();
+		ab2.updateFromRigidbody();
 		//objectList.updateObjectList();
 		window.draw(background);
-		window.draw(circle);
-		window.draw(aabb);
+		window.draw(ab1);
+		window.draw(ab2);
 		window.display();	
 
 	}
