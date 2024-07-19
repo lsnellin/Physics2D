@@ -203,6 +203,7 @@ namespace Physics2D {
 
 		// Check if intersecting, and return empty manifold if not:
 		if (!aabbVSAABB(*ab1, *ab2)) return result;
+		result.setColliding(true);
 
 		// Find faces that are overlapping:
 		Vector2f relativePosition = ab2->getCenter() - ab1->getCenter();
@@ -210,33 +211,56 @@ namespace Physics2D {
 		float overlapX = 0.0f;
 		float overlapY = 0.0f;
 
-		std::vector<Vector2f> contactPoints;
-		contactPoints.push_back(Vector2f());
-		contactPoints.push_back(Vector2f());
+		if (floatCompare(relativeVelocity.x, 0.f)) {
+			if (floatGT(relativePosition.y, 0.f)) {
+				result.setNormal(Vector2f(0.f,1.f));
+				result.setDepth(ab1->getMax().y - ab2->getMin().y);
+			}
+			else {
+				result.setNormal(Vector2f(0.f, -1.f));
+				result.setDepth(ab2->getMax().y - ab1->getMin().y);
+
+			}
+			result.addContactPoint(Vector2f());
+			return result;
+		}
+		else if (floatCompare(relativeVelocity.y, 0.f)) {
+			if (floatGT(relativePosition.x, 0.f)) {
+				result.setNormal(Vector2f(1.f, 0.f));
+				result.setDepth(ab1->getMax().x - ab2->getMin().x);
+			}
+			else {
+				result.setNormal(Vector2f(-1.f, 0.f));
+				result.setDepth(ab2->getMax().x - ab1->getMin().x);
+
+			}
+			result.addContactPoint(Vector2f());
+			return result;
+		}
 
 		if (floatGT(relativePosition.x, 0.0f)) {
-			overlapX = abs(ab1->getMax().x - ab2->getMin().x);
+			overlapX = ab1->getMax().x - ab2->getMin().x;
 		}
 		else {
-			overlapX = abs(ab1->getMin().x - ab2->getMax().x);
+			overlapX = ab1->getMin().x - ab2->getMax().x;
 		}
 
 		if (floatGT(relativePosition.y, 0.0f)) {
-			overlapY = abs(ab1->getMax().y - ab2->getMin().y);
+			overlapY = ab1->getMax().y - ab2->getMin().y;
 		}
 		else {
-			overlapY = abs(ab1->getMin().y - ab2->getMax().y);
+			overlapY = ab1->getMin().y - ab2->getMax().y;
 		}
 
 		// Figure out which overlap turned positive first
 		if (floatGT(abs(overlapX / relativeVelocity.x), abs(overlapY / relativeVelocity.y))) {
 			// Time_X > Time_Y, so they collided on the vertical sides
-			result.setNormal(Vector2f(0.f, 1.f));
+			result.setNormal(Vector2f(0.f, (overlapY > 0) - (overlapY < 0)));
 			result.setDepth(overlapY);
 		}
 		else {
 			// Time_Y > Time_X, so they collided on the horizontal sides
-			result.setNormal(Vector2f(1.f, 0.f));
+			result.setNormal(Vector2f((overlapX > 0) - (overlapX < 0), 0.f));
 			result.setDepth(overlapX);
 		}
 
@@ -249,8 +273,16 @@ namespace Physics2D {
 	// AABB VS Box
 	//=====================================
 	CollisionManifold findCollisionFeatures(AABB* ab, Box* b) {
-		// TODO: Implement
-		return CollisionManifold();
+		CollisionManifold result = CollisionManifold();
+
+		// Check if the two objects are colliding and return result if not
+		if (!aabbVSBox(*ab, *b)) return result;
+		result.setColliding(true);
+
+		AABB* ab2 = b->getAABB();
+
+		result = findCollisionFeatures(ab2, ab);
+		return result;
 	}
 
 	CollisionManifold findCollisionFeatures(Box* b, AABB* ab) {

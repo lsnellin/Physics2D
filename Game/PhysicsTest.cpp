@@ -106,15 +106,16 @@ void testPhysicsWorld() {
 	//Define Physics:
 	PhysicsSystem2D world = PhysicsSystem2D(.1, Vector2f(0.f, 1.5f));
 
-	AABB ab1 = AABB(Vector2f(0.f, 0.f), Vector2f(100.f, 100.f));
-	ab1.setFillColor(Color(155, 155, 0));
-	ab1.setCenter(windowSize / 4.f);
+	Box b = Box(Vector2f(0.f, 0.f), Vector2f(100.f, 100.f));
+	b.setFillColor(Color(155, 155, 0));
+	b.setCenter(windowSize / 4.f);
+	b.rotate(40.f);
 
 	AABB ab2 = AABB(Vector2f(0.f,0.f), Vector2f(100.f,100.f));
 	ab2.setFillColor(Color(155, 0, 155));
 	ab2.setCenter(windowSize / 2.f);
 
-	world.addRigidbody(ab1.getRigidbody());
+	world.addRigidbody(b.getRigidbody());
 	world.addRigidbody(ab2.getRigidbody());
 
 	//Main Game Loop:
@@ -126,16 +127,16 @@ void testPhysicsWorld() {
 
 			if (event.type == Event::KeyPressed) {
 				if (event.key.scancode == Keyboard::Scan::Up) {
-					ab1.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
+					b.getRigidbody()->addLinearVelocity(Vector2f(0.f, -25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Right) {
-					ab1.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
+					b.getRigidbody()->addLinearVelocity(Vector2f(25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Down) {
-					ab1.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
+					b.getRigidbody()->addLinearVelocity(Vector2f(0.f, 25.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Left) {
-					ab1.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
+					b.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 
 				else if (event.key.scancode == Keyboard::Scan::W) {
@@ -151,8 +152,8 @@ void testPhysicsWorld() {
 					ab2.getRigidbody()->addLinearVelocity(Vector2f(-25.f, 0.f));
 				}
 				else if (event.key.scancode == Keyboard::Scan::Space) {
-					ab1.setCenter(windowSize / 2.f);
-					ab1.getRigidbody()->addLinearVelocity(-1.f * ab1.getRigidbody()->getLinearVelocity());
+					b.setCenter(windowSize / 2.f);
+					b.getRigidbody()->addLinearVelocity(-1.f * b.getRigidbody()->getLinearVelocity());
 
 					ab2.setCenter(windowSize / 2.f + Vector2f(0.f, -windowSize.y / 4.f));
 					ab2.getRigidbody()->addLinearVelocity(-1.f * ab2.getRigidbody()->getLinearVelocity());
@@ -161,11 +162,11 @@ void testPhysicsWorld() {
 		}
 		//Update Physics
 		world.fixedUpdate();
-		ab1.updateFromRigidbody();
+		b.updateFromRigidbody();
 		ab2.updateFromRigidbody();
 		//objectList.updateObjectList();
 		window.draw(background);
-		window.draw(ab1);
+		window.draw(b);
 		window.draw(ab2);
 		window.display();	
 

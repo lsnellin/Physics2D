@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "PhysicsObject.h"
 #include "Rigidbody2D.h"
+#include "AABB.h"
 #include "pUtil.h"
 
 namespace Physics2D {
@@ -22,6 +23,7 @@ namespace Physics2D {
 		sf::Vector2f getCenter();
 		void rotate(float rotation);
 		std::vector<sf::Vector2f> getVertices();
+		Physics2D::AABB* getAABB();
 		void setCenter(sf::Vector2f position);
 		void setRigidbody(Physics2D::Rigidbody2D* rigidbody);
 		void setSize(sf::Vector2f size);

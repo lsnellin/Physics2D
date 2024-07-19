@@ -18,6 +18,7 @@ namespace Physics2D {
 		void rotate(float r, sf::Vector2f origin);
 		void setNormal(sf::Vector2f normal);
 		void setDepth(float depth);
+		void setColliding(bool isColliding);
 		sf::Vector2f getNormal();
 		std::vector<sf::Vector2f> getContactPoints();
 		float getDepth();

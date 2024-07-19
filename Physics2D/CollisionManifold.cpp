@@ -55,3 +55,7 @@ void CollisionManifold::setNormal(Vector2f normal) {
 void CollisionManifold::setDepth(float depth) {
 	this->depth = depth;
 }
+
+void CollisionManifold::setColliding(bool isColliding) {
+	this->isColliding = isColliding;
+}
