@@ -173,8 +173,10 @@
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RaycastResult.cpp" />
     <ClCompile Include="Rigidbody2D.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="include\Physics2D.h" />
     <ClInclude Include="include\Physics2D\AABB.h" />
     <ClInclude Include="include\Physics2D\Box.h" />

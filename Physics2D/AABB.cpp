@@ -72,3 +72,13 @@ void AABB::setCenter(Vector2f center) {
 void AABB::updateFromRigidbody() {
 	RectangleShape::setPosition(rigidbody->getPosition());
 }
+
+bool AABB::contains(AABB ab) {
+	Vector2f minContainer = this->getMin();
+	Vector2f maxContainer = this->getMax();
+
+	Vector2f minObject = ab.getMin();
+	Vector2f maxObject = ab.getMax();
+
+	return (minContainer.x <= minObject.x) && (minContainer.y <= minObject.y) && (maxContainer.x >= maxObject.x) && (maxContainer.y >= maxObject.y);
+}

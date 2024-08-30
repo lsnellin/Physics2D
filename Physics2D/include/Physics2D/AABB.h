@@ -22,6 +22,7 @@ namespace Physics2D{
 		void setCenter(sf::Vector2f position);
 		void setRigidbody(Physics2D::Rigidbody2D* rigidbody);
 		void setSize(sf::Vector2f size);
+		bool contains(Physics2D::AABB);
 
 		virtual Physics2D::Type getType() override;
 		virtual void updateFromRigidbody() override;

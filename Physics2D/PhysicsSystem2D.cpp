@@ -36,6 +36,10 @@ void PhysicsSystem2D::fixedUpdate() {
 	CollisionManifold result = CollisionManifold();
 
 	//Check each possible combination of objects for a collision
+	/*
+	 *	TODO: Add Spatial Partitioning to optimize this. 
+	 *  --> Hopefully this will improve performance by a LOT
+	 */
 	for (vector<Rigidbody2D*>::iterator body1 = rigidbodies.begin(); body1 < rigidbodies.end(); body1++) {
 		for (vector<Rigidbody2D*>::iterator body2 = body1 + 1; body2 < rigidbodies.end(); body2++) {
 			Collider2D* c1 = (*body1)->getCollider();

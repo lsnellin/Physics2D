@@ -9,11 +9,11 @@ using namespace Physics2D;
 using namespace sf;
 
 int main() {
-	runBackgroundTests();
+	//runBackgroundTests();
 
 	//fluidSim();
-	//manyBalls(8, 8, 25.f);
-	testPhysicsWorld();
+	manyBalls(25, 25, 4.f);
+	//testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
 	//visualizeCircleVSBox();
@@ -32,7 +32,8 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 	background.setFillColor(Color(0, 0, 0));
 
 	//Define Physics:
-	PhysicsSystem2D world = PhysicsSystem2D(.5, Vector2f(0.f, 0.f));
+	PhysicsSystem2D world = PhysicsSystem2D(.5f, Vector2f(0.f, 0.f));
+	Vector2f worldCenter = windowSize / 2.f;
 
 	// Create balls:
 	vector<Circle*> particles;
@@ -40,7 +41,15 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 		for (int j = 0; j < ballsY; j++) {
 			float centerX = (windowSize.x / 4) + (windowSize.x * i) / (2 * ballsX);
 			float centerY = (windowSize.y / 4) + (windowSize.y * j) / (2 * ballsY);
-			Circle* particle = new Circle(ballRadius, Vector2f(centerX, centerY));
+			Vector2f ballCenter = Vector2f(centerX, centerY);
+			Circle* particle = new Circle(ballRadius, ballCenter);
+			//particle->getRigidbody()->setCor(0.75);
+
+			// Generate Rotational Velocity about the center of screen:
+			Vector2f distance = ballCenter - worldCenter;
+			vNormalize(distance);
+			rotateVector2f(distance, 90, Vector2f(0.f,0.f));
+			particle->getRigidbody()->addLinearVelocity(distance * 5.f);
 
 			// Generate a random color
 			particle->setFillColor(
@@ -54,6 +63,9 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 
 	
 
+	//Initialize refresh rate:
+	Clock clock = Clock();
+	Time dt = seconds(1.f/60.f);
 
 	//Main Game Loop:
 	while (window.isOpen()) {
@@ -66,16 +78,11 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 		//Update Physics
 
 		for (int i = 0; i < particles.size(); i++) {
-			for (int j = i + 1; j < particles.size(); j++) {
-				Circle* p1 = particles[i];
-				Circle* p2 = particles[j];
+			Circle* p1 = particles[i];
+			Vector2f distance = p1->getRigidbody()->getPosition() - worldCenter;
+			vNormalize(distance);
 
-				Vector2f velocity = p2->getCenter() - p1->getCenter();
-				velocity /= 100000.f;
-
-				p1->getRigidbody()->addLinearVelocity(velocity);
-				p2->getRigidbody()->addLinearVelocity(velocity * -1.f);
-			}
+			p1->getRigidbody()->addLinearVelocity(-1.f * distance);
 		}
 
 		world.fixedUpdate();
@@ -87,7 +94,14 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 			particle->updateFromRigidbody();
 			window.draw(*particle);
 		}
+
+		if (clock.getElapsedTime() < dt) {
+			sleep(dt - clock.getElapsedTime());
+		}
+		clock.restart();
+
 		window.display();
+		
 
 	}
 }
