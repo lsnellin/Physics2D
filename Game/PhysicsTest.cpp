@@ -12,7 +12,7 @@ int main() {
 	//runBackgroundTests();
 
 	//fluidSim();
-	manyBalls(25, 25, 4.f);
+	manyBalls(9, 9, 4.f);
 	//testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
@@ -43,12 +43,13 @@ void manyBalls(int ballsX, int ballsY, float ballRadius) {
 			float centerY = (windowSize.y / 4) + (windowSize.y * j) / (2 * ballsY);
 			Vector2f ballCenter = Vector2f(centerX, centerY);
 			Circle* particle = new Circle(ballRadius, ballCenter);
-			//particle->getRigidbody()->setCor(0.75);
+			particle->getRigidbody()->setCor(0.90);
 
 			// Generate Rotational Velocity about the center of screen:
 			Vector2f distance = ballCenter - worldCenter;
 			vNormalize(distance);
 			rotateVector2f(distance, 90, Vector2f(0.f,0.f));
+			//if (j % 2 == 0) distance *= -1.f;
 			particle->getRigidbody()->addLinearVelocity(distance * 5.f);
 
 			// Generate a random color
