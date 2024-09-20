@@ -3,10 +3,12 @@
 using namespace Physics2D;
 using namespace sf;
 
-QuadTree::QuadTree(AABB map, int threshold) 
-	boundary(map),
-	threshold(threshold)
+QuadTree::QuadTree(AABB map, int threshold, int maxDepth) :
+	map(map),
+	threshold(threshold),
+	maxDepth(maxDepth)
 {}
 
-
-Node::Node()
+bool QuadTree::add(PhysicsObject& data) {
+	return true;
+}

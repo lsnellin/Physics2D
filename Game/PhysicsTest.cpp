@@ -11,8 +11,8 @@ using namespace sf;
 int main() {
 	//runBackgroundTests();
 
-	//fluidSim();
-	manyBalls(9, 9, 4.f);
+	testQuadTree();
+	//manyBalls(9, 9, 4.f);
 	//testPhysicsWorld();
 	//visualizeRaycastBox();
 	//visualizeCircleVSCircle();
@@ -20,6 +20,11 @@ int main() {
 	
 	return 0;
 }
+
+void testQuadTree() {
+	cout << "Here" << endl;
+}
+
 void manyBalls(int ballsX, int ballsY, float ballRadius) {
 
 	Vector2f windowSize = Vector2f(1920, 1080);

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "PhysicsObject.h"
 #include "Rigidbody2D.h"
+#include "AABB.h"
 
 namespace Physics2D {
 	class Circle: public sf::CircleShape, public Physics2D::Collider2D, public Physics2D::PhysicsObject
@@ -10,7 +11,7 @@ namespace Physics2D {
 		float radius;
 		Physics2D::Rigidbody2D* rigidbody;
 
-	public:
+	public: 
 		Circle();
 		Circle(float radius, sf::Vector2f center);
 		~Circle();

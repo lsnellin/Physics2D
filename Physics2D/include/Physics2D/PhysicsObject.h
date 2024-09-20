@@ -2,7 +2,6 @@
 #include "Collider2D.h"
 #include "RigidBody2D.h"
 
-
 namespace Physics2D {
 	class PhysicsObject {
 	public:

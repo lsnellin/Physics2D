@@ -279,9 +279,9 @@ namespace Physics2D {
 		if (!aabbVSBox(*ab, *b)) return result;
 		result.setColliding(true);
 
-		AABB* ab2 = b->getAABB();
+		AABB ab2 = b->getAABB();
 
-		result = findCollisionFeatures(ab2, ab);
+		result = findCollisionFeatures(&ab2, ab);
 		return result;
 	}
 

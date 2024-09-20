@@ -93,7 +93,7 @@ void Box::updateFromRigidbody() {
 	RectangleShape::setPosition(rigidbody->getPosition());
 }
 
-AABB* Box::getAABB() {
+AABB Box::getAABB() {
 	std::vector<Vector2f> vertices = this->getVertices();
 	int minX = vertices[0].x;
 	int maxX = vertices[0].x;
@@ -107,5 +107,5 @@ AABB* Box::getAABB() {
 		maxY = fmax(maxY, vertex.y);
 	}
 
-	return new AABB(Vector2f(minX, minY), Vector2f(maxX, maxY));;
+	return AABB(Vector2f(minX, minY), Vector2f(maxX, maxY));
 }
